@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { getBusiness } from '../lib/content';
+import { whatsappUrl } from '../lib/format';
+import { breadcrumbSchema } from '../lib/seo';
+
+const business = await getBusiness();
+const site = Astro.site!.toString().replace(/\/$/, '');
+const wa = whatsappUrl(business.whatsapp.e164, 'Hola ACROMA, quiero orientación para iniciar mi proyecto. ¿Podemos conversar?');
+---
+
+<BaseLayout
+  title="Contacto y cotizaciones"
+  description="Solicita tu cotización a ACROMA Arquitectos en Cajamarca. Escríbenos por WhatsApp, llámanos o usa el formulario y te orientamos sobre tu proyecto."
+  path="/contacto"
+  schema={breadcrumbSchema(site, [{ name: 'Inicio', href: '/' }, { name: 'Contacto', href: '/contacto' }])}
+>
+  <PageHero
+    eyebrow="Contacto"
+    title="Cuéntanos qué quieres construir o mejorar."
+    lead="No necesitas tener todo resuelto. Escríbenos con lo que tengas y te orientamos con honestidad sobre el siguiente paso."
+    breadcrumbs={[{ name: 'Contacto' }]}
+  />
+
+  <section class="section aurora">
+    <div class="container layout">
+      <div class="info" data-reveal="left">
+        <h2>Hablemos de tu proyecto</h2>
+        <p class="lead">
+          Respondemos en menos de 24 horas hábiles. Para una primera orientación, ayuda mucho que nos cuentes la
+          ubicación, las medidas aproximadas y, si los tienes, fotos o planos.
+        </p>
+
+        <ul class="info__list" role="list">
+          <li>
+            <span>WhatsApp</span>
+            <a href={wa} target="_blank" rel="noopener noreferrer">{business.whatsapp.display}</a>
+          </li>
+          <li>
+            <span>Teléfonos</span>
+            <div>
+              {business.phones.map((p) => <a href={`tel:${p.e164}`}>{p.display}</a>)}
+            </div>
+          </li>
+          <li>
+            <span>Correo</span>
+            <a href={`mailto:${business.email}`}>{business.email}</a>
+          </li>
+          <li>
+            <span>Ubicación</span>
+            <address>{business.address.locality}, {business.address.region}, {business.address.country}</address>
+          </li>
+          <li>
+            <span>Horario</span>
+            <p>{business.hours}</p>
+          </li>
+          <li>
+            <span>Redes</span>
+            <div>
+              <a href={business.social.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+              <a href={business.social.facebook} target="_blank" rel="noopener noreferrer">Facebook</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="panel glass" data-glass data-reveal="right">
+        <h2>Formulario de contacto</h2>
+        <ContactForm />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(36px, 6vw, 84px);
+    align-items: start;
+  }
+  .info h2,
+  .panel h2 {
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+  }
+  .info .lead {
+    margin: 20px 0 34px;
+    max-width: 48ch;
+  }
+  .info__list {
+    display: grid;
+  }
+  .info__list li {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+  }
+  .info__list li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .info__list span {
+    font-family: var(--font-label);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    padding-top: 4px;
+  }
+  .info__list a,
+  .info__list p,
+  .info__list address {
+    font-size: 1.05rem;
+    font-style: normal;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .info__list div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+  }
+  .panel {
+    --radius-lg: 34px;
+    padding: clamp(26px, 4vw, 46px);
+  }
+  .panel h2 {
+    margin-bottom: 26px;
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    .info__list li {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+import { getReasons } from '../lib/content';
+const reasons = await getReasons();
+---
+
+<section class="section aurora" aria-labelledby="why-title">
+  <div class="container why">
+    <div class="why__intro" data-reveal="left">
+      <p class="eyebrow">Por qué elegirnos</p>
+      <h2 id="why-title">Un solo equipo responsable del proyecto, de principio a fin.</h2>
+      <p class="lead">
+        Construir es una inversión de muchos años. Reducimos la incertidumbre con planos completos, presupuestos claros y
+        una comunicación directa durante todo el proceso.
+      </p>
+      <a class="btn btn--navy" href="/nosotros">Conocer al estudio</a>
+    </div>
+    <ol class="why__list" role="list" data-reveal-group="110">
+      {
+        reasons.map((r, i) => (
+          <li class="glass" data-glass>
+            <span class="why__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{r.title}</h3>
+              <p>{r.description}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .why {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(36px, 6vw, 84px);
+    align-items: start;
+  }
+  .why__intro {
+    position: sticky;
+    top: calc(var(--header-h) + 32px);
+  }
+  .why__intro .lead {
+    margin: 22px 0 30px;
+    max-width: 48ch;
+  }
+  .why__list {
+    display: grid;
+    gap: 14px;
+  }
+  .why__list li {
+    --radius-lg: 26px;
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 18px;
+    padding: 28px 30px;
+    transition: transform 0.6s var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .why__list li:hover {
+      transform: translateX(6px);
+    }
+  }
+  .why__num {
+    font-family: var(--font-label);
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold-ink);
+  }
+  .why__list h3 {
+    font-size: 1.45rem;
+    margin-bottom: 8px;
+  }
+  .why__list p {
+    color: var(--soft-ink);
+    line-height: 1.7;
+  }
+  @media (max-width: 860px) {
+    .why {
+      grid-template-columns: 1fr;
+    }
+    .why__intro {
+      position: static;
+    }
+  }
+  @media (max-width: 520px) {
+    .why__list li {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+</style>

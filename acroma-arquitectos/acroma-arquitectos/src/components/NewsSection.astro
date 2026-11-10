@@ -1,0 +1,59 @@
+---
+import PostCard from './PostCard.astro';
+import SocialLinks from './SocialLinks.astro';
+import { getBusiness, getPosts } from '../lib/content';
+
+const business = await getBusiness();
+const posts = await getPosts({ limit: 3 });
+---
+
+{
+  posts.length > 0 && (
+    <section class="section aurora" aria-labelledby="news-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="eyebrow">Novedades y campañas</p>
+            <h2 id="news-title">Lo último en ACROMA.</h2>
+          </div>
+          <p class="lead">Promociones por temporada, avances de obra y noticias del estudio. También las publicamos en nuestras redes.</p>
+        </div>
+
+        <ul class="news-grid" role="list" data-reveal-group="120">
+          {posts.map((p) => <li><PostCard post={p} /></li>)}
+        </ul>
+
+        <div class="news-foot" data-reveal>
+          <a class="link-arrow" href="/novedades">Ver todas las novedades →</a>
+          <SocialLinks facebook={business.social.facebook} instagram={business.social.instagram} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .news-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 40px;
+  }
+  @media (max-width: 980px) {
+    .news-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .news-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

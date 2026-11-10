@@ -1,0 +1,52 @@
+---
+import { getBusiness } from '../lib/content';
+import { whatsappUrl } from '../lib/format';
+
+const business = await getBusiness();
+const href = whatsappUrl(business.whatsapp.e164, 'Hola ACROMA, quiero orientación para iniciar mi proyecto. ¿Podemos conversar?');
+---
+
+<a class="wa-float" href={href} target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp a ACROMA">
+  <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" fill="currentColor">
+    <path d="M16.04 3C9.4 3 4 8.38 4 15.01c0 2.12.55 4.19 1.6 6.01L4 29l8.17-1.57a12.03 12.03 0 0 0 3.87.63C22.67 28.06 28 22.68 28 16.05 28 9.4 22.68 3 16.04 3Zm0 22.03c-1.2 0-2.38-.27-3.45-.78l-.5-.24-4.85.93.96-4.7-.27-.52a9.9 9.9 0 0 1-1.5-5.2c0-5.5 4.5-9.97 10.03-9.97 5.49 0 9.97 4.47 9.97 9.97 0 5.5-4.48 10.5-9.89 10.5Zm5.5-7.5c-.3-.15-1.78-.88-2.05-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.18.2-.35.22-.65.07-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.5-1.8-1.68-2.1-.18-.3-.02-.46.13-.6.14-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.65-.93-2.25-.25-.6-.5-.5-.68-.5h-.58c-.2 0-.53.08-.8.38-.28.3-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.1 3.2 5.08 4.5.7.3 1.26.48 1.7.62.72.23 1.37.2 1.88.12.57-.08 1.78-.73 2.03-1.43.25-.7.25-1.3.18-1.43-.08-.12-.28-.2-.58-.35Z" />
+  </svg>
+</a>
+
+<style>
+  .wa-float {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 190;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, rgba(60, 220, 125, 0.92), rgba(24, 160, 80, 0.88));
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    backdrop-filter: blur(14px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      0 16px 40px rgba(24, 160, 80, 0.42);
+    transition: transform 0.4s var(--ease-out);
+  }
+  .wa-float:active {
+    transform: scale(0.96);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wa-float:hover {
+      transform: translateY(-3px);
+    }
+  }
+  @media (max-width: 640px) {
+    .wa-float {
+      right: 16px;
+      bottom: 16px;
+      width: 56px;
+      height: 56px;
+    }
+  }
+</style>

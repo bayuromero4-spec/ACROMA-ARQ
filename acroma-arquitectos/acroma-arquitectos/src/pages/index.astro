@@ -1,0 +1,199 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import WhyUs from '../components/WhyUs.astro';
+import Process from '../components/Process.astro';
+import Testimonials from '../components/Testimonials.astro';
+import CtaBand from '../components/CtaBand.astro';
+import NewsSection from '../components/NewsSection.astro';
+import Faq from '../components/Faq.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { getBusiness, getServices, getProjects, getTestimonials } from '../lib/content';
+import { reviewsSchema } from '../lib/seo';
+import { faqSchema } from '../data/faq';
+
+const business = await getBusiness();
+const services = await getServices({ featuredOnly: true });
+const projects = await getProjects({ featuredOnly: true, limit: 5 });
+const testimonials = await getTestimonials();
+const site = Astro.site!.toString().replace(/\/$/, '');
+---
+
+<BaseLayout
+  title="ACROMA Arquitectos | Arquitectura y reformas en Cajamarca"
+  description="Estudio de arquitectura y construcción en Cajamarca: diseño, reformas integrales, cocinas, baños, ampliaciones y planos completos. Solicita tu cotización."
+  path="/"
+  schema={[reviewsSchema(site, testimonials), faqSchema()]}
+>
+  <Hero>
+    <!-- Para usar video en loop: ver instrucciones dentro de components/Hero.astro -->
+  </Hero>
+
+  <!-- Servicios principales -->
+  <section class="section aurora" aria-labelledby="services-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">Servicios</p>
+          <h2 id="services-title">Todo lo que necesitas para pasar de la idea a la obra terminada.</h2>
+        </div>
+        <p class="lead">
+          Desde el diseño y los planos hasta la construcción y las terminaciones. Puedes contratar una etapa o acompañarte
+          de nuestro equipo durante todo el proceso.
+        </p>
+      </div>
+
+      <ul class="grid-3" role="list" data-reveal-group="110">
+        {services.slice(0, 6).map((s, i) => <li><ServiceCard service={s}  /></li>)}
+      </ul>
+
+      <p class="more" data-reveal><a class="link-arrow" href="/servicios">Ver todos los servicios →</a></p>
+    </div>
+  </section>
+
+  <!-- Proyectos destacados -->
+  <section class="section aurora" aria-labelledby="projects-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">Proyectos destacados</p>
+          <h2 id="projects-title">Obras que hablan por nosotros.</h2>
+        </div>
+        <p class="lead">
+          Viviendas, reformas y edificios en Cajamarca. Cada proyecto empezó con una conversación sencilla y terminó en un
+          espacio pensado para quien lo habita.
+        </p>
+      </div>
+
+      <ul class="projects" role="list" data-reveal-group="130">
+        {
+          projects.map((p, i) => (
+            <li class:list={[i === 0 && 'projects__lead']}>
+              <ProjectCard project={p} ratio={i === 0 ? 'portrait' : 'landscape'} />
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="more" data-reveal><a class="link-arrow" href="/proyectos">Ver todos los proyectos →</a></p>
+    </div>
+  </section>
+
+  <NewsSection />
+  <WhyUs />
+  <Process />
+  <Testimonials />
+  <Faq />
+  <CtaBand />
+
+  <!-- Formulario de contacto -->
+  <section class="section aurora" aria-labelledby="contact-title">
+    <div class="container contact">
+      <div>
+        <p class="eyebrow">Contacto</p>
+        <h2 id="contact-title">Solicita tu cotización sin compromiso.</h2>
+        <p class="lead">
+          Cuéntanos tu proyecto y te responderemos con una orientación inicial, los datos que necesitamos y los siguientes
+          pasos.
+        </p>
+        <ul class="contact__list" role="list">
+          <li>
+            <span>Teléfono / WhatsApp</span>
+            {business.phones.map((p) => <a href={`tel:${p.e164}`}>{p.display}</a>)}
+          </li>
+          <li>
+            <span>Ubicación</span>
+            <p>{business.address.locality}, {business.address.country}</p>
+          </li>
+          <li>
+            <span>Horario</span>
+            <p>{business.hours}</p>
+          </li>
+        </ul>
+      </div>
+      <div class="contact__panel glass" data-glass data-reveal>
+        <ContactForm />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .more {
+    margin-top: 40px;
+  }
+  .projects {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    grid-auto-flow: dense;
+    gap: 28px;
+  }
+  .projects__lead {
+    grid-row: span 2;
+  }
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(36px, 6vw, 80px);
+    align-items: start;
+  }
+  .contact .lead {
+    margin: 22px 0 36px;
+    max-width: 48ch;
+  }
+  .contact__list {
+    display: grid;
+    gap: 20px;
+  }
+  .contact__list li {
+    display: grid;
+    gap: 4px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .contact__list span {
+    font-family: var(--font-label);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+  }
+  .contact__list a,
+  .contact__list p {
+    font-size: 1.1rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .contact__panel {
+    --radius-lg: 34px;
+    padding: clamp(26px, 4vw, 46px);
+  }
+  @media (max-width: 980px) {
+    .grid-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .projects {
+      grid-template-columns: 1fr 1fr;
+    }
+    .projects__lead {
+      grid-row: auto;
+    }
+    .contact {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .grid-3,
+    .projects {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

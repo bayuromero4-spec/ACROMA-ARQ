@@ -1,0 +1,70 @@
+---
+import { getBusiness } from '../lib/content';
+import { whatsappUrl } from '../lib/format';
+
+interface Props {
+  title?: string;
+  text?: string;
+}
+const business = await getBusiness();
+const {
+  title = 'Cuéntanos qué quieres construir o mejorar.',
+  text = 'No necesitas tener todo resuelto. Escríbenos con lo que tengas: ubicación, medidas, fotos o una idea inicial, y te orientamos con honestidad sobre el siguiente paso.',
+} = Astro.props;
+---
+
+<section class="cta aurora aurora--dark" aria-labelledby="cta-title">
+  <div class="container">
+    <div class="cta__panel glass glass--dark" data-glass data-reveal>
+      <div>
+        <p class="eyebrow eyebrow--light">Empecemos</p>
+        <h2 id="cta-title">{title}</h2>
+        <p class="cta__text">{text}</p>
+      </div>
+      <div class="cta__actions">
+        <a class="btn btn--gold" href="/contacto#formulario">Solicitar cotización</a>
+        <a
+          class="btn btn--outline"
+          href={whatsappUrl(business.whatsapp.e164, 'Hola ACROMA, quiero orientación para iniciar mi proyecto.')}
+          target="_blank"
+          rel="noopener noreferrer">WhatsApp {business.whatsapp.display}</a
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    background: linear-gradient(120deg, var(--navy-2), #16294a);
+    color: var(--white);
+    padding-block: clamp(56px, 8vw, 100px);
+  }
+  .cta__panel {
+    --radius-lg: 36px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+    gap: 36px 56px;
+    align-items: center;
+    padding: clamp(30px, 5vw, 64px);
+  }
+  h2 {
+    color: var(--white);
+    max-width: 20ch;
+  }
+  .cta__text {
+    margin-top: 20px;
+    max-width: 56ch;
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .cta__actions {
+    display: grid;
+    gap: 14px;
+  }
+  @media (max-width: 860px) {
+    .cta__panel {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

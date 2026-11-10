@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { getProjects } from '../../lib/content';
+import { breadcrumbSchema } from '../../lib/seo';
+
+const projects = await getProjects();
+const categories = [...new Set(projects.map((p) => p.category))];
+const site = Astro.site!.toString().replace(/\/$/, '');
+---
+
+<BaseLayout
+  title="Proyectos de arquitectura y reformas"
+  description="Explora proyectos de ACROMA Arquitectos: viviendas, reformas integrales, cocinas y baños, ampliaciones y edificios multifamiliares realizados en Cajamarca."
+  path="/proyectos"
+  schema={breadcrumbSchema(site, [{ name: 'Inicio', href: '/' }, { name: 'Proyectos', href: '/proyectos' }])}
+>
+  <PageHero
+    eyebrow="Proyectos"
+    title="Espacios pensados para quienes los habitan."
+    lead="Una selección de viviendas, reformas y edificios en los que hemos trabajado. Cada proyecto parte de escuchar y termina en una obra bien resuelta."
+    breadcrumbs={[{ name: 'Proyectos' }]}
+  />
+
+  <section class="section aurora">
+    <div class="container">
+      <div class="filters" role="group" aria-label="Filtrar por categoría" data-filters>
+        <button type="button" class="chip" aria-pressed="true" data-filter="all">Todos</button>
+        {categories.map((c) => <button type="button" class="chip" aria-pressed="false" data-filter={c}>{c}</button>)}
+      </div>
+
+      <ul class="grid" role="list" data-grid data-reveal-group="100">
+        {
+          projects.map((p, i) => (
+            <li data-category={p.category}>
+              <ProjectCard project={p} eager={i < 3} />
+            </li>
+          ))
+        }
+      </ul>
+      <p class="empty" data-empty hidden>No hay proyectos en esta categoría por ahora.</p>
+    </div>
+  </section>
+
+  <CtaBand
+    title="¿Tienes un proyecto parecido en mente?"
+    text="Cuéntanos tu terreno, tu vivienda o tu idea y te explicamos cómo podríamos trabajarlo, con tiempos y presupuesto aproximados."
+  />
+</BaseLayout>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: clamp(32px, 5vw, 52px);
+  }
+  .chip {
+    min-height: 46px;
+    padding: 0 22px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.36));
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    backdrop-filter: blur(14px) saturate(170%);
+    box-shadow: inset 0 1px 0 #fff, 0 6px 18px rgba(20, 35, 60, 0.08);
+    color: var(--navy);
+    font: 500 0.92rem var(--font-body);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background 0.3s var(--ease),
+      color 0.3s var(--ease),
+      transform 0.35s var(--ease-out);
+  }
+  .chip:active {
+    transform: scale(0.96);
+  }
+  .chip[aria-pressed='true'] {
+    background: linear-gradient(180deg, #25406a, #14233c);
+    border-color: transparent;
+    color: var(--white);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 26px rgba(20, 35, 60, 0.3);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 44px 28px;
+  }
+  .grid li[hidden] {
+    display: none;
+  }
+  .empty {
+    margin-top: 24px;
+    color: var(--muted);
+  }
+  @media (max-width: 980px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+  }
+</style>
+
+<script>
+  // Filtro por categoría (mejora progresiva: sin JS se muestran todos los proyectos).
+  const filters = document.querySelector('[data-filters]');
+  const items = document.querySelectorAll<HTMLElement>('[data-grid] > li');
+  const empty = document.querySelector<HTMLElement>('[data-empty]');
+
+  filters?.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
+    if (!button) return;
+    const value = button.dataset.filter;
+    filters.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+    let visible = 0;
+    items.forEach((li) => {
+      const show = value === 'all' || li.dataset.category === value;
+      li.hidden = !show;
+      if (show) visible++;
+    });
+    if (empty) empty.hidden = visible > 0;
+  });
+</script>

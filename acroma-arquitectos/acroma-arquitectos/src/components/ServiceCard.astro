@@ -1,0 +1,121 @@
+---
+import type { Service } from '../data/types';
+import { unsplashSrcset } from '../data/images';
+
+interface Props {
+  service: Service;
+  eager?: boolean;
+}
+const { service, eager = false } = Astro.props;
+---
+
+<article class="card glass" data-glass>
+  <a class="card__link" href={`/servicios/${service.slug}`}>
+    <div class="card__media">
+      <img
+        src={service.image.src}
+        srcset={unsplashSrcset(service.image.src, [480, 720, 1000])}
+        sizes="(min-width: 980px) 360px, (min-width: 640px) 50vw, 100vw"
+        width={service.image.width}
+        height={service.image.height}
+        alt={service.image.alt}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+      <span class="card__kicker glass glass--dark glass--pill">{service.kicker}</span>
+    </div>
+    <div class="card__body">
+      <h3>{service.title}</h3>
+      <p class="card__text">{service.summary}</p>
+      <span class="card__more">
+        Ver detalles
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </span>
+    </div>
+  </a>
+</article>
+
+<style>
+  .card {
+    height: 100%;
+    padding: 10px;
+    transition:
+      transform 0.6s var(--ease-out),
+      box-shadow 0.6s var(--ease-out);
+  }
+  .card__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+  }
+  .card__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--paper-2), #d9cdb6);
+  }
+  .card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s var(--ease-out);
+  }
+  .card__kicker {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    padding: 7px 14px;
+    font-family: var(--font-label);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white);
+    --glass-bg: linear-gradient(135deg, rgba(13, 23, 40, 0.58), rgba(13, 23, 40, 0.4));
+    --glass-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  }
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 22px 16px 16px;
+  }
+  h3 {
+    margin-bottom: 10px;
+  }
+  .card__text {
+    font-size: 0.96rem;
+    line-height: 1.7;
+    color: var(--soft-ink);
+  }
+  .card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 20px;
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+  .card__more svg {
+    transition: transform 0.5s var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      transform: translateY(-8px);
+      --glass-shadow: 0 30px 70px rgba(20, 35, 60, 0.22);
+    }
+    .card:hover .card__media img {
+      transform: scale(1.06);
+    }
+    .card:hover .card__more svg {
+      transform: translateX(5px);
+    }
+  }
+</style>

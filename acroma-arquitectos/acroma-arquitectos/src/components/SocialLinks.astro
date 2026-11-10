@@ -1,0 +1,62 @@
+---
+interface Props {
+  facebook: string;
+  instagram: string;
+  /** Texto previo, p. ej. "Síguenos". */
+  label?: string;
+  tone?: 'light' | 'dark';
+}
+const { facebook, instagram, label = 'Síguenos', tone = 'light' } = Astro.props;
+---
+
+<div class:list={['social', `social--${tone}`]}>
+  {label && <span class="social__label">{label}</span>}
+  <a class="social__btn glass glass--pill" class:list={[tone === 'dark' && 'glass--dark']} href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram de ACROMA">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" /></svg>
+    Instagram
+  </a>
+  <a class="social__btn glass glass--pill" class:list={[tone === 'dark' && 'glass--dark']} href={facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook de ACROMA">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21h3Z" /></svg>
+    Facebook
+  </a>
+</div>
+
+<style>
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .social__label {
+    margin-right: 4px;
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+  }
+  .social--dark .social__label {
+    color: var(--gold-2);
+  }
+  .social__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 0 18px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--navy);
+    transition: transform 0.4s var(--ease-out);
+  }
+  .social--dark .social__btn {
+    color: var(--white);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .social__btn:hover {
+      transform: translateY(-3px);
+    }
+  }
+</style>

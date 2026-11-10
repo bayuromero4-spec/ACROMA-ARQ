@@ -1,0 +1,293 @@
+---
+import { Image } from 'astro:assets';
+import { getBusiness, getSiteImages } from '../lib/content';
+import heroLocal from '../assets/hero-maqueta.jpg';
+
+const business = await getBusiness();
+const override = (await getSiteImages()).hero;
+const alt = override?.alt || 'Maqueta arquitectónica de una vivienda contemporánea con fachada acristalada';
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <!--
+    ESPACIO CINEMATOGRÁFICO DEL HERO
+    ---------------------------------
+    La foto del hero se cambia desde /admin → «Imágenes del sitio».
+    Para poner una animación en loop más adelante, pasa un <video> en el slot "media"
+    desde src/pages/index.astro, por ejemplo:
+
+      <video slot="media" class="hero__video" autoplay muted loop playsinline
+             poster="/media/hero-poster.jpg" preload="metadata">
+        <source src="/media/hero.webm" type="video/webm" />
+        <source src="/media/hero.mp4" type="video/mp4" />
+      </video>
+
+    Sube el archivo a /public/media/. Mantén el video por debajo de ~4 MB y sin audio.
+  -->
+  <div class="hero__media" aria-hidden="true" data-parallax>
+    <slot name="media">
+      {
+        override ? (
+          <img class="hero__img" src={override.url} alt="" fetchpriority="high" decoding="async" />
+        ) : (
+          <Image class="hero__img" src={heroLocal} alt="" widths={[640, 960, 1400]} sizes="100vw" loading="eager" fetchpriority="high" />
+        )
+      }
+    </slot>
+  </div>
+  <div class="hero__overlay" aria-hidden="true"></div>
+
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="hero__tag rise glass glass--dark glass--pill" style="--d: 150ms">Arquitectura · Construcción · Reformas</p>
+      <h1 id="hero-title" class="rise" style="--d: 300ms">Arquitectura pensada para <em>vivir mejor.</em></h1>
+      <p class="hero__lead rise" style="--d: 460ms">
+        Estudio de arquitectura y construcción en Cajamarca. Del primer boceto a la entrega de llaves, con planos completos,
+        presupuesto claro y supervisión directa del equipo.
+      </p>
+      <div class="hero__actions rise" style="--d: 600ms">
+        <a class="btn btn--gold" href="/contacto#formulario">Solicitar cotización</a>
+        <a class="btn btn--outline" href="/proyectos">Ver proyectos</a>
+      </div>
+    </div>
+
+    <figure class="hero__figure rise glass glass--dark" style="--d: 520ms" data-glass>
+      {
+        override ? (
+          <img src={override.url} alt={alt} decoding="async" />
+        ) : (
+          <Image src={heroLocal} alt={alt} widths={[480, 720]} sizes="(min-width: 980px) 480px, 90vw" loading="eager" />
+        )
+      }
+      <figcaption class="glass glass--dark glass--pill">Diseño · Planos · Obra</figcaption>
+    </figure>
+
+    <dl class="hero__stats">
+      {
+        business.stats.map((s, i) => (
+          <div class="stat rise glass glass--dark" data-glass style={`--d: ${760 + i * 120}ms`}>
+            <dt data-count>{s.value}</dt>
+            <dd>{s.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: max(640px, 100svh);
+    background: var(--navy-2);
+    color: var(--white);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero__media {
+    position: absolute;
+    inset: -4% 0 -4% 0;
+    z-index: -2;
+    will-change: transform;
+    transform: scale(1.08);
+  }
+  .hero__media :global(img),
+  .hero__media :global(video) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgba(13, 23, 40, 0.92) 0%, rgba(13, 23, 40, 0.62) 46%, rgba(13, 23, 40, 0.18) 100%),
+      linear-gradient(0deg, rgba(13, 23, 40, 0.88) 0%, rgba(13, 23, 40, 0) 42%);
+  }
+  .hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    align-items: center;
+    padding-top: calc(var(--header-h) + 48px);
+    padding-bottom: clamp(40px, 6vw, 72px);
+  }
+  :global(body:has(.promo)) .hero__inner {
+    padding-top: calc(var(--header-h) + 48px + var(--banner-h, 0px));
+  }
+  .hero__stats {
+    grid-column: 1 / -1;
+  }
+  .hero__figure {
+    --radius-lg: 34px;
+    position: relative;
+    margin: 0;
+    padding: 12px;
+    justify-self: end;
+    width: min(100%, 470px);
+    --glass-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+  }
+  .hero__figure :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 24px;
+  }
+  .hero__figure figcaption {
+    position: absolute;
+    left: 28px;
+    bottom: 28px;
+    padding: 8px 16px;
+    font-family: var(--font-label);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white);
+    --glass-bg: linear-gradient(135deg, rgba(13, 23, 40, 0.62), rgba(13, 23, 40, 0.42));
+  }
+  /* En pantallas anchas la foto de fondo es solo ambiente: desenfocada y oscura (la foto nítida va enmarcada) */
+  .hero__media :global(img) {
+    filter: blur(34px) saturate(1.15);
+    transform: scale(1.12);
+  }
+  @media (min-width: 980px) {
+    .hero__overlay {
+      background:
+        linear-gradient(90deg, rgba(13, 23, 40, 0.9) 0%, rgba(13, 23, 40, 0.55) 55%, rgba(13, 23, 40, 0.35) 100%),
+        linear-gradient(0deg, rgba(13, 23, 40, 0.85) 0%, rgba(13, 23, 40, 0) 45%);
+    }
+  }
+  @media (max-width: 979px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+    }
+    .hero__figure {
+      justify-self: stretch;
+      width: 100%;
+      margin-top: 36px;
+      --radius-lg: 28px;
+    }
+    .hero__figure :global(img) {
+      aspect-ratio: 4 / 3;
+      border-radius: 18px;
+    }
+    .hero__figure figcaption {
+      left: 22px;
+      bottom: 22px;
+    }
+  }
+  h1 {
+    max-width: 14ch;
+    font-size: clamp(2.6rem, 5.4vw, 4.6rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+    color: var(--white);
+    font-weight: 800;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--gold-2);
+  }
+  .hero__lead {
+    max-width: 56ch;
+    margin-top: 26px;
+    font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 34px;
+  }
+  .hero__tag {
+    display: inline-flex;
+    width: fit-content;
+    margin-bottom: 26px;
+    padding: 9px 20px;
+    font-family: var(--font-label);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold-2);
+    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  }
+  .hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 780px;
+    margin-top: clamp(40px, 7vw, 72px);
+  }
+  .stat {
+    --radius-lg: 22px;
+    padding: 20px 22px;
+    transition: transform 0.5s var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .stat:hover {
+      transform: translateY(-4px);
+    }
+  }
+  .hero__stats dt {
+    font-family: var(--font-label);
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero__stats dd {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  @media (max-width: 640px) {
+    .hero__tag {
+      letter-spacing: 0.12em;
+      font-size: 0.7rem;
+      padding: 8px 14px;
+    }
+    .hero {
+      min-height: 100svh;
+    }
+    .hero__overlay {
+      background:
+        linear-gradient(0deg, rgba(13, 23, 40, 0.94) 0%, rgba(13, 23, 40, 0.62) 55%, rgba(13, 23, 40, 0.4) 100%);
+    }
+    .hero__actions .btn {
+      flex: 1 1 100%;
+    }
+    .hero__stats {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .stat {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding: 14px 18px;
+    }
+    .hero__stats dt {
+      min-width: 70px;
+      font-size: 1.7rem;
+    }
+    .hero__stats dd {
+      margin: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__media {
+      transform: none !important;
+    }
+  }
+</style>

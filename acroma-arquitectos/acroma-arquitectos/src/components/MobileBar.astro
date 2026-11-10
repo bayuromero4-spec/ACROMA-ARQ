@@ -1,0 +1,54 @@
+---
+import { getBusiness } from '../lib/content';
+import { whatsappUrl } from '../lib/format';
+
+const business = await getBusiness();
+const wa = whatsappUrl(business.whatsapp.e164, 'Hola ACROMA, quiero orientación para iniciar mi proyecto.');
+---
+
+<!-- Barra fija solo en celulares: las dos acciones que más importan, siempre a mano -->
+<div class="mbar glass glass--dark glass--pill" role="region" aria-label="Contacto rápido">
+  <a class="btn btn--gold" href="/contacto#formulario">Cotizar</a>
+  <a class="btn btn--wa" href={wa} target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true" fill="currentColor"><path d="M16.04 3C9.4 3 4 8.38 4 15.01c0 2.12.55 4.19 1.6 6.01L4 29l8.17-1.57a12.03 12.03 0 0 0 3.87.63C22.67 28.06 28 22.68 28 16.05 28 9.4 22.68 3 16.04 3Zm5.5 14.5c-.3-.15-1.78-.88-2.05-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.18.2-.35.22-.65.07-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.5-1.8-1.68-2.1-.18-.3-.02-.46.13-.6.14-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.65-.93-2.25-.25-.6-.5-.5-.68-.5h-.58c-.2 0-.53.08-.8.38-.28.3-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.1 3.2 5.08 4.5.7.3 1.26.48 1.7.62.72.23 1.37.2 1.88.12.57-.08 1.78-.73 2.03-1.43.25-.7.25-1.3.18-1.43-.08-.12-.28-.2-.58-.35Z" /></svg>
+    WhatsApp
+  </a>
+</div>
+
+<style>
+  .mbar {
+    display: none;
+  }
+  @media (max-width: 720px) {
+    .mbar {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      z-index: 195;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+      --glass-bg: linear-gradient(135deg, rgba(13, 23, 40, 0.8), rgba(13, 23, 40, 0.66));
+      --glass-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+    .mbar .btn {
+      min-height: 46px;
+      width: 100%;
+      padding-inline: 12px;
+    }
+    .btn--wa {
+      background: linear-gradient(135deg, rgb(52, 208, 118), rgb(24, 160, 80));
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      gap: 8px;
+    }
+    :global(body) {
+      padding-bottom: 84px;
+    }
+    :global(.wa-float) {
+      display: none !important;
+    }
+  }
+</style>

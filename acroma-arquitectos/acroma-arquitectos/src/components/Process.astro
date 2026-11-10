@@ -1,0 +1,92 @@
+---
+import { getProcessSteps } from '../lib/content';
+const steps = await getProcessSteps();
+
+interface Props {
+  tone?: 'dark' | 'light';
+}
+const { tone = 'dark' } = Astro.props;
+const dark = tone === 'dark';
+---
+
+<section class:list={['section', 'aurora', dark ? 'section--dark aurora--dark' : 'section--paper-2']} aria-labelledby="process-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="eyebrow">Proceso de trabajo</p>
+        <h2 id="process-title">Un camino claro para avanzar sin improvisar.</h2>
+      </div>
+      <p class="lead">
+        Cada etapa tiene un objetivo concreto: sabes qué revisaremos, qué recibirás y qué decisión corresponde tomar antes
+        de pasar a la siguiente.
+      </p>
+    </div>
+
+    <ol class="steps" role="list" data-reveal-group="120">
+      {
+        steps.map((s, i) => (
+          <li class:list={['step', 'glass', dark && 'glass--dark']} data-glass>
+            <span class="step__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.title}</h3>
+            <p>{s.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .step {
+    --radius-lg: 26px;
+    padding: 30px 26px 30px;
+    transition: transform 0.6s var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .step:hover {
+      transform: translateY(-6px);
+    }
+  }
+  .step__num {
+    display: block;
+    font-family: var(--font-label);
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold-ink);
+    margin-bottom: 22px;
+  }
+  .glass--dark .step__num {
+    color: var(--gold-2);
+  }
+  .step h3 {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+  }
+  .step p {
+    font-size: 0.96rem;
+    line-height: 1.7;
+    color: var(--soft-ink);
+  }
+  .glass--dark.step h3 {
+    color: var(--white);
+  }
+  .glass--dark.step p {
+    color: rgba(255, 255, 255, 0.74);
+  }
+  @media (max-width: 1000px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .steps {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

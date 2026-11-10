@@ -1,0 +1,271 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo-acroma.png';
+import { navigation } from '../data/site';
+
+interface Props {
+  currentPath?: string;
+}
+const { currentPath = '' } = Astro.props;
+const isActive = (href: string) => currentPath === href || currentPath.startsWith(`${href}/`);
+---
+
+<header class="site-header" data-header>
+  <div class="bar glass glass--dark glass--pill">
+    <a class="brand" href="/" aria-label="ACROMA Arquitectos, inicio">
+      <Image src={logo} alt="" width={40} height={35} loading="eager" class="brand__logo" />
+      <span class="brand__name"><span class="brand__word">ACR<em>OMA</em></span><small>Arquitectos</small></span>
+    </a>
+
+    <nav class="nav" id="menu-principal" aria-label="Principal" data-nav>
+      <ul role="list">
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn btn--gold nav__cta" href="/contacto#formulario">Cotizar</a>
+    </nav>
+
+    <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-principal" data-toggle>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 12px 0 auto 0;
+    z-index: 200;
+    padding-inline: clamp(12px, 3vw, 28px);
+    pointer-events: none;
+    view-transition-name: site-header;
+  }
+  .bar {
+    --glass-bg: linear-gradient(135deg, rgba(13, 23, 40, 0.62), rgba(13, 23, 40, 0.42));
+    --glass-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+    pointer-events: auto;
+    width: min(1180px, 100%);
+    margin-inline: auto;
+    height: 64px;
+    padding: 0 10px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    transition:
+      height 0.45s var(--ease-out),
+      background 0.45s var(--ease-out),
+      box-shadow 0.45s var(--ease-out);
+  }
+  .site-header[data-scrolled] .bar {
+    --glass-bg: linear-gradient(135deg, rgba(13, 23, 40, 0.82), rgba(13, 23, 40, 0.68));
+    height: 58px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    text-decoration: none;
+    color: var(--white);
+  }
+  .brand__logo {
+    width: 38px;
+    height: auto;
+  }
+  .brand__name {
+    display: grid;
+    font-family: var(--font-label);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    line-height: 1;
+  }
+  .brand__word em {
+    font-style: normal;
+    color: var(--gold-2);
+  }
+  .brand__name small {
+    font-size: 0.56rem;
+    letter-spacing: 0.34em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.62);
+    margin-top: 5px;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .nav ul {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav ul a {
+    position: relative;
+    display: block;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+    text-decoration: none;
+    transition: color 0.25s var(--ease), background-color 0.3s var(--ease);
+  }
+  .nav ul a[aria-current='page'] {
+    color: var(--white);
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .nav ul a:hover {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+  .nav__cta {
+    min-height: 44px;
+    padding-inline: 22px;
+  }
+
+  .nav-toggle {
+    display: none;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--white);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-toggle span,
+  .nav-toggle span::before,
+  .nav-toggle span::after {
+    display: block;
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    position: relative;
+    transition: transform 0.35s var(--ease-out), background-color 0.2s;
+  }
+  .nav-toggle span::before,
+  .nav-toggle span::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+  .nav-toggle span::before {
+    top: -6px;
+  }
+  .nav-toggle span::after {
+    top: 6px;
+  }
+  .nav-toggle[aria-expanded='true'] span {
+    background: transparent;
+  }
+  .nav-toggle[aria-expanded='true'] span::before {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .nav-toggle[aria-expanded='true'] span::after {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  @media (max-width: 920px) {
+    .bar {
+      height: 60px;
+      padding-right: 8px;
+    }
+    .nav-toggle {
+      display: flex;
+    }
+    /* Menú móvil: hoja de vidrio que nace del botón */
+    .nav {
+      position: absolute;
+      inset: calc(100% + 10px) clamp(12px, 3vw, 28px) auto;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 10px 16px 20px;
+      border-radius: 28px;
+      /* Casi opaco: un desenfoque dentro de otro desenfoque no funciona, y el texto debe ser legible */
+      background: linear-gradient(135deg, rgb(20, 35, 60), rgb(13, 23, 40));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 30px 60px rgba(0, 0, 0, 0.4);
+      transform-origin: top right;
+      opacity: 0;
+      transform: translate3d(0, -8px, 0) scale(0.94);
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity 0.3s var(--ease),
+        transform 0.45s var(--ease-out),
+        visibility 0s linear 0.45s;
+    }
+    .nav[data-open='true'] {
+      opacity: 1;
+      transform: none;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 0.3s var(--ease), transform 0.45s var(--ease-out);
+    }
+    .nav ul {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+    .nav ul a {
+      padding: 17px 8px;
+      border-radius: 0;
+      font-size: 0.95rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: none !important;
+      box-shadow: none !important;
+    }
+    .nav ul a[aria-current='page'] {
+      color: var(--gold-2);
+    }
+    .nav__cta {
+      margin-top: 18px;
+    }
+  }
+</style>
+
+<script>
+  // Menú móvil: único JavaScript del header.
+  const toggle = document.querySelector<HTMLButtonElement>('[data-toggle]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+
+  function setOpen(open: boolean) {
+    if (!toggle || !nav) return;
+    nav.dataset.open = String(open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+  }
+
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  nav?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target as HTMLElement).closest('[data-header]')) setOpen(false);
+  });
+  window.matchMedia('(min-width: 921px)').addEventListener('change', (e) => {
+    if (e.matches) setOpen(false);
+  });
+</script>

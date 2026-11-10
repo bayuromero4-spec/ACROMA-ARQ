@@ -1,0 +1,22 @@
+---
+import '../../admin/admin.css';
+import { SUPABASE_URL, SUPABASE_KEY, hasSupabase } from '../../lib/supabase';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title>Panel · ACROMA Arquitectos</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body data-sb-url={hasSupabase ? SUPABASE_URL : ''} data-sb-key={hasSupabase ? SUPABASE_KEY : ''}>
+    <div id="app"><p class="boot">Cargando panel…</p></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script>
+      import '../../admin/main.ts';
+    </script>
+  </body>
+</html>

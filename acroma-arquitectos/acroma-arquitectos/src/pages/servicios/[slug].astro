@@ -1,0 +1,244 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import Process from '../../components/Process.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { getServices, getServiceBySlug, getProjectsByService } from '../../lib/content';
+import { unsplashSrcset } from '../../data/images';
+import { breadcrumbSchema } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const services = await getServices();
+  return services.map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const service = (await getServiceBySlug(slug!))!;
+const all = await getServices();
+const others = all.filter((s) => s.slug !== service.slug).slice(0, 3);
+const projects = (await getProjectsByService(service.slug)).slice(0, 3);
+const site = Astro.site!.toString().replace(/\/$/, '');
+const path = `/servicios/${service.slug}`;
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: service.title,
+  description: service.description,
+  url: `${site}${path}`,
+  image: service.image.src,
+  provider: { '@id': `${site}#organization` },
+  areaServed: { '@type': 'AdministrativeArea', name: 'Cajamarca, Perú' },
+  serviceType: service.kicker,
+};
+---
+
+<BaseLayout
+  title={`${service.title} en Cajamarca`}
+  description={service.summary}
+  path={path}
+  ogImage={service.image.src}
+  schema={[
+    serviceSchema,
+    breadcrumbSchema(site, [
+      { name: 'Inicio', href: '/' },
+      { name: 'Servicios', href: '/servicios' },
+      { name: service.title, href: path },
+    ]),
+  ]}
+>
+  <PageHero
+    eyebrow={service.kicker}
+    title={service.title}
+    lead={service.summary}
+    breadcrumbs={[{ name: 'Servicios', href: '/servicios' }, { name: service.title }]}
+  />
+
+  <section class="section aurora" aria-label={`Detalle de ${service.title}`}>
+    <div class="container detail">
+      <div class="detail__media" data-reveal="left">
+        <img
+          src={service.image.src}
+          srcset={unsplashSrcset(service.image.src, [480, 800, 1100])}
+          sizes="(min-width: 980px) 560px, 100vw"
+          width={service.image.width}
+          height={service.image.height}
+          alt={service.image.alt}
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+
+      <div class="detail__body" data-reveal="right">
+        <p class="eyebrow">De qué se trata</p>
+        <p class="lead">{service.description}</p>
+
+        <h2>Qué incluye</h2>
+        <ul class="features" role="list">
+          {service.features.map((f) => <li class="glass" data-glass>{f}</li>)}
+        </ul>
+
+        <dl class="facts glass" data-glass>
+          <div>
+            <dt>Ideal para</dt>
+            <dd>{service.idealFor}</dd>
+          </div>
+          <div>
+            <dt>Recibes</dt>
+            <dd>{service.deliverables}</dd>
+          </div>
+        </dl>
+
+        <div class="detail__cta">
+          <a class="btn btn--navy" href="/contacto#formulario">Cotizar este servicio</a>
+          <a class="btn btn--outline-dark" href="/servicios">Ver todos los servicios</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Process tone="light" />
+
+  {
+    projects.length > 0 && (
+      <section class="section aurora" aria-labelledby="related-projects-title">
+        <div class="container">
+          <div class="section-head section-head--stack" data-reveal>
+            <p class="eyebrow">Proyectos con este servicio</p>
+            <h2 id="related-projects-title">Trabajos donde lo aplicamos.</h2>
+          </div>
+          <ul class="grid" role="list" data-reveal-group="120">
+            {projects.map((p) => <li><ProjectCard project={p} /></li>)}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section aurora" aria-labelledby="other-services-title">
+    <div class="container">
+      <div class="section-head section-head--stack" data-reveal>
+        <p class="eyebrow">Otros servicios</p>
+        <h2 id="other-services-title">También podemos ayudarte con…</h2>
+      </div>
+      <ul class="grid" role="list" data-reveal-group="120">
+        {others.map((s) => <li><ServiceCard service={s} /></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand
+    title={`¿Te interesa ${service.title.toLowerCase()}?`}
+    text="Cuéntanos tu caso y te explicamos alcance, tiempos y presupuesto aproximado, sin compromiso."
+  />
+</BaseLayout>
+
+<style>
+  .detail {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: clamp(32px, 6vw, 84px);
+    align-items: start;
+  }
+  .detail__media {
+    position: sticky;
+    top: calc(var(--header-h) + 40px);
+    aspect-ratio: 4 / 4.4;
+    overflow: hidden;
+    border-radius: 40px;
+    background: linear-gradient(135deg, var(--paper-2), #d9cdb6);
+    box-shadow: var(--shadow);
+  }
+  .detail__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .detail__body .lead {
+    font-size: 1.12rem;
+    margin-bottom: 36px;
+  }
+  .detail__body h2 {
+    font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+    margin-bottom: 18px;
+  }
+  .features {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  .features li {
+    --radius-lg: 20px;
+    padding: 16px 20px 16px 48px;
+    font-weight: 500;
+    color: var(--navy);
+  }
+  .features li::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    z-index: 2;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #efd99a, #bd9850);
+    box-shadow: 0 0 0 4px rgba(189, 152, 80, 0.2);
+  }
+  .facts {
+    --radius-lg: 26px;
+    display: grid;
+    gap: 18px;
+    padding: 26px 28px;
+    margin-bottom: 32px;
+  }
+  .facts dt {
+    font-family: var(--font-label);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    margin-bottom: 4px;
+  }
+  .facts dd {
+    line-height: 1.7;
+    color: var(--soft-ink);
+  }
+  .detail__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  @media (max-width: 980px) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+    .detail__media {
+      position: static;
+      aspect-ratio: 4 / 3;
+    }
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .grid li:nth-child(3) {
+      display: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    .grid li:nth-child(3) {
+      display: block;
+    }
+  }
+</style>

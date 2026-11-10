@@ -1,0 +1,287 @@
+---
+import { getBusiness } from '../lib/content';
+import { SUPABASE_URL, SUPABASE_KEY, hasSupabase } from '../lib/supabase';
+
+interface Props {
+  /** Tipo de proyecto preseleccionado. */
+  defaultType?: string;
+}
+const { defaultType = '' } = Astro.props;
+const business = await getBusiness();
+
+const projectTypes = [
+  'Diseño arquitectónico',
+  'Reforma integral',
+  'Remodelación de cocina',
+  'Remodelación de baño',
+  'Ampliación',
+  'Construcción',
+  'Terminaciones',
+  'Planos y especialidades',
+  'Otro',
+];
+---
+
+<!--
+  FORMULARIO DE CONTACTO.
+  Con Supabase configurado guarda la consulta en la tabla "leads" (petición REST directa, sin librerías).
+  Si falla o no está configurado, ofrece continuar por WhatsApp con los datos ya escritos: nunca se pierde una consulta.
+-->
+<form
+  class="form"
+  id="formulario"
+  novalidate
+  data-contact-form
+  data-wa={business.whatsapp.e164}
+  data-sb-url={hasSupabase ? SUPABASE_URL : undefined}
+  data-sb-key={hasSupabase ? SUPABASE_KEY : undefined}
+>
+  <!-- Trampa para bots: las personas no lo ven ni lo rellenan -->
+  <div class="hp" aria-hidden="true"><label>No rellenar<input type="text" name="empresa" tabindex="-1" autocomplete="off" /></label></div>
+  <div class="form__row">
+    <div class="field">
+      <label for="cf-nombre">Nombre completo</label>
+      <input id="cf-nombre" name="nombre" type="text" autocomplete="name" required placeholder="Tu nombre" />
+    </div>
+    <div class="field">
+      <label for="cf-telefono">Teléfono / WhatsApp</label>
+      <input id="cf-telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" required placeholder="+51 9XX XXX XXX" />
+    </div>
+  </div>
+
+  <div class="form__row">
+    <div class="field">
+      <label for="cf-email">Correo electrónico</label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required placeholder="tu@correo.com" />
+    </div>
+    <div class="field">
+      <label for="cf-tipo">Tipo de proyecto</label>
+      <select id="cf-tipo" name="tipo" required>
+        <option value="" disabled selected={!defaultType}>Selecciona una opción</option>
+        {projectTypes.map((t) => <option value={t} selected={t === defaultType}>{t}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="cf-mensaje">Cuéntanos sobre tu proyecto</label>
+    <textarea id="cf-mensaje" name="mensaje" rows="5" required placeholder="Ubicación del terreno o vivienda, qué necesitas, medidas aproximadas, en qué etapa estás…"></textarea>
+  </div>
+
+  <label class="check">
+    <input type="checkbox" name="consentimiento" required />
+    <span>Acepto que ACROMA use estos datos para responder a mi consulta.</span>
+  </label>
+
+  <button class="btn btn--gold" type="submit" data-submit>Enviar solicitud</button>
+  <p class="form__note">Respondemos en menos de 24 horas hábiles con una orientación inicial.</p>
+
+  <div class="form__status" role="status" aria-live="polite" data-status hidden></div>
+</form>
+
+<style>
+  .form {
+    display: grid;
+    gap: 18px;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .field {
+    display: grid;
+    gap: 8px;
+  }
+  label {
+    font-family: var(--font-label);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+  }
+  input[type='text'],
+  input[type='tel'],
+  input[type='email'],
+  select,
+  textarea {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    box-shadow: inset 0 1px 2px rgba(20, 35, 60, 0.06), 0 1px 0 rgba(255, 255, 255, 0.7);
+    color: var(--ink);
+    font: 400 1rem var(--font-body);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%2314233c' stroke-width='1.6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 42px;
+  }
+  textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(189, 152, 80, 0.22);
+  }
+  input:user-invalid,
+  select:user-invalid,
+  textarea:user-invalid {
+    border-color: #b3261e;
+  }
+  .check {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 12px;
+    align-items: start;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--soft-ink);
+    cursor: pointer;
+  }
+  .check input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--navy);
+  }
+  .form .btn {
+    width: 100%;
+    min-height: 54px;
+  }
+  .form__note {
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .form__status {
+    padding: 18px 20px;
+    border-radius: 18px;
+    border-left: 3px solid var(--gold);
+    background: rgba(255, 255, 255, 0.7);
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: var(--soft-ink);
+  }
+  .form__status[hidden] {
+    display: none;
+  }
+  .form__status a {
+    color: var(--navy);
+    font-weight: 600;
+    text-decoration-color: var(--gold);
+    text-underline-offset: 4px;
+  }
+  @media (max-width: 640px) {
+    .form__row {
+      grid-template-columns: 1fr;
+    }
+    /* 16px evita el zoom automático en iOS */
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = form?.querySelector<HTMLElement>('[data-status]');
+  const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+
+  function show(html: string, wa?: string) {
+    if (!status) return;
+    status.hidden = false;
+    status.innerHTML = html;
+    if (wa) status.querySelector('a')?.setAttribute('href', wa);
+    status.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const data = new FormData(form);
+    const val = (k: string) => String(data.get(k) ?? '').trim();
+
+    // Bots: simulamos éxito sin guardar nada.
+    if (val('empresa')) {
+      show('¡Gracias! Recibimos tu consulta.');
+      return;
+    }
+
+    const text = [
+      `Hola ACROMA, soy ${val('nombre')}.`,
+      `Teléfono: ${val('telefono')}`,
+      `Correo: ${val('email')}`,
+      `Proyecto: ${val('tipo')}`,
+      val('mensaje'),
+    ].join('\n');
+    const wa = `https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(text)}`;
+    const fallback =
+      'No pudimos enviar el formulario en este momento. Para no perder tu consulta, <a target="_blank" rel="noopener noreferrer">continúa por WhatsApp</a> con tus datos ya completados.';
+
+    const url = form.dataset.sbUrl;
+    const key = form.dataset.sbKey;
+    if (!url || !key) {
+      show(fallback, wa);
+      return;
+    }
+
+    if (submit) submit.disabled = true;
+    try {
+      const res = await fetch(`${url}/rest/v1/leads`, {
+        method: 'POST',
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          name: val('nombre'),
+          email: val('email'),
+          phone: val('telefono'),
+          project_type: val('tipo'),
+          message: val('mensaje'),
+          source: location.pathname,
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      show(
+        '<strong>¡Gracias!</strong> Recibimos tu consulta y te responderemos en menos de 24 horas hábiles. Si es urgente, también puedes <a target="_blank" rel="noopener noreferrer">escribirnos por WhatsApp</a>.',
+        wa,
+      );
+    } catch {
+      show(fallback, wa);
+    } finally {
+      if (submit) submit.disabled = false;
+    }
+  });
+</script>

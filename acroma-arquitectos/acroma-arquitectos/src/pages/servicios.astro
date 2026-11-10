@@ -1,0 +1,204 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Process from '../components/Process.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { getServices } from '../lib/content';
+import { unsplashSrcset } from '../data/images';
+import { breadcrumbSchema, serviceListSchema } from '../lib/seo';
+
+const services = await getServices();
+const site = Astro.site!.toString().replace(/\/$/, '');
+---
+
+<BaseLayout
+  title="Servicios de arquitectura y construcción"
+  description="Diseño arquitectónico, reformas integrales, cocinas y baños, ampliaciones, construcción, terminaciones y planos de todas las especialidades en Cajamarca."
+  path="/servicios"
+  schema={[serviceListSchema(site, services), breadcrumbSchema(site, [{ name: 'Inicio', href: '/' }, { name: 'Servicios', href: '/servicios' }])]}
+>
+  <PageHero
+    eyebrow="Servicios"
+    title="Diseño, planos y obra en un solo equipo."
+    lead="Acompañamos tu proyecto desde la primera idea hasta la entrega: diseño arquitectónico, planos de todas las especialidades, reformas, construcción y terminaciones."
+    breadcrumbs={[{ name: 'Servicios' }]}
+  />
+
+  <section class="section aurora">
+    <div class="container">
+      <nav class="index" aria-label="Índice de servicios">
+        <ul role="list">
+          {services.map((s) => <li><a href={`#${s.slug}`}>{s.title}</a></li>)}
+        </ul>
+      </nav>
+
+      <div class="list">
+        {
+          services.map((s, i) => (
+            <article class:list={['service', i % 2 === 1 && 'service--reverse']} id={s.slug} data-reveal>
+              <div class="service__media">
+                <img
+                  src={s.image.src}
+                  srcset={unsplashSrcset(s.image.src, [480, 800, 1100])}
+                  sizes="(min-width: 980px) 560px, 100vw"
+                  width={s.image.width}
+                  height={s.image.height}
+                  alt={s.image.alt}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </div>
+              <div class="service__body">
+                <p class="eyebrow">{s.kicker}</p>
+                <h2>{s.title}</h2>
+                <p class="lead">{s.description}</p>
+                <ul class="service__features" role="list">
+                  {s.features.map((f) => <li>{f}</li>)}
+                </ul>
+                <dl class="service__facts">
+                  <div>
+                    <dt>Ideal para</dt>
+                    <dd>{s.idealFor}</dd>
+                  </div>
+                  <div>
+                    <dt>Recibes</dt>
+                    <dd>{s.deliverables}</dd>
+                  </div>
+                </dl>
+                <div class="service__cta">
+                  <a class="btn btn--navy" href={`/contacto#formulario`}>Cotizar este servicio</a>
+                  <a class="link-arrow" href={`/servicios/${s.slug}`}>Ver servicio completo →</a>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <Process tone="light" />
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .index {
+    margin-bottom: clamp(44px, 6vw, 72px);
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .index ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .index a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 0 22px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.36));
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    backdrop-filter: blur(14px) saturate(170%);
+    box-shadow: inset 0 1px 0 #fff, 0 6px 18px rgba(20, 35, 60, 0.08);
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--navy);
+    transition: transform 0.35s var(--ease-out), background 0.3s var(--ease), color 0.3s var(--ease);
+  }
+  .index a:active {
+    transform: scale(0.96);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .index a:hover {
+      background: linear-gradient(180deg, #25406a, #14233c);
+      color: var(--white);
+    }
+  }
+  .service__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px 26px;
+  }
+  .list {
+    display: grid;
+    gap: clamp(56px, 8vw, 104px);
+  }
+  .service {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: center;
+  }
+  .service--reverse .service__media {
+    order: 2;
+  }
+  .service__media {
+    aspect-ratio: 4 / 3.2;
+    overflow: hidden;
+    border-radius: 36px;
+    background: linear-gradient(135deg, var(--paper-2), #d9cdb6);
+    box-shadow: var(--shadow);
+  }
+  .service__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .service__body h2 {
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+    margin-bottom: 18px;
+  }
+  .service__features {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0;
+  }
+  .service__features li {
+    position: relative;
+    padding-left: 22px;
+    color: var(--soft-ink);
+  }
+  .service__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    width: 10px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .service__facts {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 30px;
+    padding: 22px 0;
+    border-block: 1px solid var(--line);
+  }
+  .service__facts dt {
+    font-family: var(--font-label);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    margin-bottom: 4px;
+  }
+  .service__facts dd {
+    font-size: 0.96rem;
+    line-height: 1.65;
+    color: var(--soft-ink);
+  }
+  @media (max-width: 900px) {
+    .service {
+      grid-template-columns: 1fr;
+    }
+    .service--reverse .service__media {
+      order: 0;
+    }
+  }
+</style>

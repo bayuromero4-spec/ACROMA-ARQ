@@ -1,0 +1,95 @@
+---
+import { getTestimonials, getProjectBySlug } from '../lib/content';
+
+const testimonials = await getTestimonials();
+const items = await Promise.all(
+  testimonials.map(async (t) => ({ ...t, project: t.projectSlug ? await getProjectBySlug(t.projectSlug) : undefined })),
+);
+---
+
+<section class="section aurora" aria-labelledby="testimonials-title">
+  <div class="container">
+    <div class="section-head section-head--stack" data-reveal>
+      <p class="eyebrow">Testimonios</p>
+      <h2 id="testimonials-title">Lo que dicen quienes ya construyeron con nosotros.</h2>
+    </div>
+
+    <ul class="grid" role="list" data-reveal-group="120">
+      {
+        items.map((t) => (
+          <li>
+            <figure class="quote glass" data-glass>
+              <div class="quote__stars" role="img" aria-label={`${t.rating} de 5 estrellas`}>
+                {'★'.repeat(t.rating)}
+              </div>
+              <blockquote>
+                <p>“{t.quote}”</p>
+              </blockquote>
+              <figcaption>
+                <strong>{t.name}</strong>
+                <span>
+                  {t.role} · {t.location}
+                </span>
+                {t.project && (
+                  <a href={`/proyectos/${t.project.slug}`}>Ver proyecto: {t.project.title}</a>
+                )}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .quote {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    --radius-lg: 30px;
+    padding: clamp(26px, 3vw, 40px);
+  }
+  .quote__stars {
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    font-size: 1.05rem;
+  }
+  blockquote p {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+    line-height: 1.55;
+    color: var(--navy);
+  }
+  figcaption {
+    margin-top: auto;
+    display: grid;
+    gap: 2px;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  figcaption strong {
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  figcaption a {
+    margin-top: 10px;
+    justify-self: start;
+    font-weight: 600;
+    color: var(--navy);
+    text-decoration: underline;
+    text-decoration-color: var(--gold);
+    text-underline-offset: 4px;
+  }
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,288 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { getProjects, getProjectBySlug, getRelatedProjects, getServices } from '../../lib/content';
+import { unsplashSrcset } from '../../data/images';
+import { formatMonthYear } from '../../lib/format';
+import { breadcrumbSchema, projectSchema } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const project = await getProjectBySlug(slug!);
+if (!project) return Astro.redirect('/404');
+
+const related = await getRelatedProjects(project, 3);
+const allServices = await getServices();
+const usedServices = allServices.filter((s) => project.services?.includes(s.slug));
+const site = Astro.site!.toString().replace(/\/$/, '');
+const path = `/proyectos/${project.slug}`;
+---
+
+<BaseLayout
+  title={project.title}
+  description={project.excerpt}
+  path={path}
+  ogImage={project.mainImage.src}
+  ogType="article"
+  schema={[
+    projectSchema(site, project),
+    breadcrumbSchema(site, [
+      { name: 'Inicio', href: '/' },
+      { name: 'Proyectos', href: '/proyectos' },
+      { name: project.title, href: path },
+    ]),
+  ]}
+>
+  <PageHero
+    eyebrow={`${project.category} · ${project.location}`}
+    title={project.title}
+    lead={project.excerpt}
+    breadcrumbs={[{ name: 'Proyectos', href: '/proyectos' }, { name: project.title }]}
+  />
+
+  <div class="cover">
+    <div class="container">
+      <img
+        src={project.mainImage.src}
+        srcset={unsplashSrcset(project.mainImage.src, [800, 1200, 1600, 2000])}
+        sizes="(min-width: 1180px) 1180px, 100vw"
+        width={project.mainImage.width}
+        height={project.mainImage.height}
+        alt={project.mainImage.alt}
+        fetchpriority="high"
+        decoding="async"
+      />
+    </div>
+  </div>
+
+  <section class="section aurora" aria-label="Detalle del proyecto">
+    <div class="container detail">
+      <div class="detail__text" data-reveal>
+        <p class="eyebrow">El proyecto</p>
+        {project.description.map((p, i) => <p class:list={[i === 0 && 'lead']}>{p}</p>)}
+      </div>
+
+      <aside class="detail__facts glass" data-glass data-reveal="right" aria-label="Ficha técnica">
+        <h2>Ficha del proyecto</h2>
+        <dl>
+          <div>
+            <dt>Categoría</dt>
+            <dd>{project.category}</dd>
+          </div>
+          <div>
+            <dt>Ubicación</dt>
+            <dd>{project.location}</dd>
+          </div>
+          <div>
+            <dt>Finalizado</dt>
+            <dd><time datetime={project.date}>{formatMonthYear(project.date)}</time></dd>
+          </div>
+          {
+            project.details?.map((d) => (
+              <div>
+                <dt>{d.label}</dt>
+                <dd>{d.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        {
+          usedServices.length > 0 && (
+            <div class="detail__services">
+              <p>Servicios aplicados</p>
+              <ul role="list">
+                {usedServices.map((s) => <li><a href={`/servicios/${s.slug}`}>{s.title}</a></li>)}
+              </ul>
+            </div>
+          )
+        }
+        <a class="btn btn--navy" href="/contacto#formulario">Quiero un proyecto así</a>
+      </aside>
+    </div>
+  </section>
+
+  {
+    project.gallery.length > 0 && (
+      <section class="section aurora" aria-labelledby="gallery-title">
+        <div class="container">
+          <div class="section-head section-head--stack" data-reveal>
+            <p class="eyebrow">Galería</p>
+            <h2 id="gallery-title">Así quedó {project.title}.</h2>
+          </div>
+          <ul class="gallery" role="list" data-reveal-group="140">
+            {project.gallery.map((g, i) => (
+              <li class:list={[i === 0 && project.gallery.length > 2 && 'gallery__wide']}>
+                <img
+                  src={g.src}
+                  srcset={unsplashSrcset(g.src, [480, 800, 1200])}
+                  sizes="(min-width: 980px) 560px, 100vw"
+                  width={g.width}
+                  height={g.height}
+                  alt={g.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="related-title">
+    <div class="container">
+      <div class="section-head section-head--stack" data-reveal>
+        <p class="eyebrow">Más proyectos</p>
+        <h2 id="related-title">Otros trabajos que pueden interesarte.</h2>
+      </div>
+      <ul class="related" role="list" data-reveal-group="120">
+        {related.map((p) => <li><ProjectCard project={p} /></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .cover {
+    background: linear-gradient(180deg, var(--navy) 0, var(--navy) 50%, var(--paper) 50%);
+    padding-bottom: 0;
+  }
+  .cover img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, var(--paper-2), #d9cdb6);
+  }
+  .detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    gap: clamp(36px, 6vw, 84px);
+    align-items: start;
+  }
+  .detail__text p:not(.eyebrow) {
+    margin-bottom: 22px;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--soft-ink);
+  }
+  .detail__text .lead {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 2.2vw, 1.65rem);
+    line-height: 1.5;
+    color: var(--navy);
+  }
+  .detail__facts {
+    position: sticky;
+    top: calc(var(--header-h) + 28px);
+    --radius-lg: 30px;
+    padding: 32px;
+  }
+  .detail__facts h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  .detail__facts dl {
+    display: grid;
+  }
+  .detail__facts dl div {
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+  }
+  .detail__facts dt,
+  .detail__services p {
+    font-family: var(--font-label);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    margin-bottom: 4px;
+  }
+  .detail__facts dd {
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .detail__services {
+    padding: 14px 0 22px;
+    border-top: 1px solid var(--line);
+  }
+  .detail__services ul {
+    display: grid;
+    gap: 6px;
+  }
+  .detail__services a {
+    font-size: 0.96rem;
+    color: var(--navy);
+    text-decoration-color: var(--gold);
+    text-underline-offset: 4px;
+  }
+  .detail__facts .btn {
+    width: 100%;
+  }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .gallery li {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--paper-2), #d9cdb6);
+    box-shadow: var(--shadow-sm);
+  }
+  .gallery__wide {
+    grid-column: 1 / -1;
+  }
+  .gallery img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  .gallery__wide img {
+    aspect-ratio: 16 / 8;
+  }
+  .related {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 36px 28px;
+  }
+  @media (max-width: 980px) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+    .detail__facts {
+      position: static;
+    }
+    .related {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .related li:nth-child(3) {
+      display: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .gallery,
+    .related {
+      grid-template-columns: 1fr;
+    }
+    .related li:nth-child(3) {
+      display: block;
+    }
+    .cover img {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>

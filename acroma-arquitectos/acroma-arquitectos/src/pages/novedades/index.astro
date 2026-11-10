@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import PostCard from '../../components/PostCard.astro';
+import SocialLinks from '../../components/SocialLinks.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { getBusiness, getPosts } from '../../lib/content';
+import { breadcrumbSchema } from '../../lib/seo';
+
+const business = await getBusiness();
+const posts = await getPosts();
+const site = Astro.site!.toString().replace(/\/$/, '');
+---
+
+<BaseLayout
+  title="Novedades y campañas"
+  description="Promociones por temporada, avances de obra y noticias de ACROMA Arquitectos en Cajamarca."
+  path="/novedades"
+  schema={breadcrumbSchema(site, [
+    { name: 'Inicio', href: '/' },
+    { name: 'Novedades', href: '/novedades' },
+  ])}
+>
+  <PageHero
+    eyebrow="Novedades"
+    title="Campañas, avances y noticias del estudio."
+    lead="Aquí publicamos las promociones del momento, obras en marcha y novedades de ACROMA."
+    breadcrumbs={[{ name: 'Novedades' }]}
+  />
+
+  <section class="section aurora" aria-label="Listado de novedades">
+    <div class="container">
+      {
+        posts.length > 0 ? (
+          <ul class="grid" role="list" data-reveal-group="110">
+            {posts.map((p) => <li><PostCard post={p} /></li>)}
+          </ul>
+        ) : (
+          <p class="empty">Pronto compartiremos novedades. Mientras tanto, síguenos en redes.</p>
+        )
+      }
+      <div class="follow glass" data-glass data-reveal>
+        <div>
+          <h2>Más contenido en nuestras redes</h2>
+          <p>Fotos de obra, antes y después y novedades al día.</p>
+        </div>
+        <SocialLinks facebook={business.social.facebook} instagram={business.social.instagram} label="" />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .empty {
+    padding: 40px 0;
+    text-align: center;
+    color: var(--muted);
+  }
+  .follow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 48px;
+    padding: clamp(22px, 3vw, 34px);
+  }
+  .follow h2 {
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  }
+  .follow p {
+    margin-top: 6px;
+    color: var(--soft-ink);
+  }
+  @media (max-width: 980px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

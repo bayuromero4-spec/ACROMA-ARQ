@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Página no encontrada" description="La página que buscas no existe o fue movida." path="/404" noindex>
+  <section class="nf">
+    <div class="container">
+      <p class="eyebrow eyebrow--light">Error 404</p>
+      <h1>Esta página no existe.</h1>
+      <p>Puede que el enlace haya cambiado. Vuelve al inicio o revisa nuestros servicios y proyectos.</p>
+      <div class="nf__actions">
+        <a class="btn btn--gold" href="/">Ir al inicio</a>
+        <a class="btn btn--outline" href="/proyectos">Ver proyectos</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    min-height: 100svh;
+    display: grid;
+    align-items: center;
+    padding-top: var(--header-h);
+    background: linear-gradient(160deg, var(--navy-2), var(--navy));
+    color: var(--white);
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    color: var(--white);
+    margin-bottom: 18px;
+  }
+  p:not(.eyebrow) {
+    max-width: 50ch;
+    color: rgba(255, 255, 255, 0.74);
+    line-height: 1.7;
+  }
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 30px;
+  }
+</style>
