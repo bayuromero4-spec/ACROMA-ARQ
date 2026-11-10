@@ -82,6 +82,15 @@ const jsonLd = [
     {jsonLd.map((item) => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
 
     <script is:inline>
+      // Limpia la atribución añadida al abrir el sitio desde enlaces externos de ChatGPT.
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('utm_source') === 'chatgpt.com') {
+          url.searchParams.delete('utm_source');
+          const query = url.searchParams.toString();
+          window.history.replaceState({}, '', url.pathname + (query ? '?' + query : '') + url.hash);
+        }
+      } catch (_) {}
       document.documentElement.classList.add('js');
     </script>
 
