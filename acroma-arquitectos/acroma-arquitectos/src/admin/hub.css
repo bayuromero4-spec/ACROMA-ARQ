@@ -77,3 +77,10 @@
 .hub-calendar-side .hub-empty{padding:20px 5px}
 @media(max-width:820px){.hub-calendar-layout{grid-template-columns:1fr}.hub-calendar-day{min-height:62px;padding:6px}.hub-calendar{padding:12px}.hub-calendar-days{gap:4px}}
 @media(max-width:520px){.hub-client-grid{grid-template-columns:1fr}.hub-calendar-day{min-height:52px;border-radius:8px;padding:4px}.hub-day-count{font-size:8px}.hub-calendar-week>div{font-size:9px}.hub-calendar-month{min-width:130px;font-size:14px}}
+
+.hub-project-form-preview{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:10px;border:1px dashed #c9d4e1;border-radius:12px;background:#f8fafc}
+.hub-project-form-preview img{width:112px;height:76px;object-fit:cover;border-radius:9px;box-shadow:0 5px 16px #15233b18}
+.hub-calendar-side>.hub-empty{background:#f7f9fc;border-radius:12px}
+.hub-calendar-side>.hub-btn{align-self:flex-start}
+.hub-client-card .hub-actions{flex-wrap:wrap}
+@media(max-width:620px){.hub-calendar-controls{width:100%}.hub-calendar-controls .hub-calendar-month{flex:1}.hub-calendar-layout{gap:10px}.hub-calendar-day{min-height:48px}.hub-day-number{font-size:11px;width:22px;height:22px}.hub-calendar-side{padding:15px}}
