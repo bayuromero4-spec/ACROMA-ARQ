@@ -47,7 +47,7 @@ Proyecto: `https://qfrfqnjvsdujumyimzap.supabase.co`. Se hace **una sola vez**:
    (Solo los correos de la tabla `admins` entran al panel; para añadir otro, inserta su correo en esa tabla y crea su usuario.)
 3. **Cerrar el registro público.** *Authentication → Sign In / Providers → Email*: desactiva *Allow new users to sign up*.
 4. **Claves.** *Project Settings → API*: copia la clave **anon / publishable** (nunca la `service_role`).
-   Copia `.env.example` a `.env` y pégala en `PUBLIC_SUPABASE_ANON_KEY`. En Netlify, cárgala como variable de entorno igual.
+   Copia `.env.example` a `.env` y pégala en `PUBLIC_SUPABASE_ANON_KEY`. En Cloudflare Pages, cárgala en Settings → Environment variables.
 5. `npm run build`. Si faltan las claves, o Supabase no responde, la web usa los datos de `src/data` y no se rompe.
 
 ### Publicar en Cloudflare Pages
