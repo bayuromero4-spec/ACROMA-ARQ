@@ -111,3 +111,55 @@ El hero tiene un slot `media`. Instrucciones en los comentarios de `src/componen
 - Confirmar correo, enlace de Facebook y las cifras de `src/data/site.ts` (son de ejemplo).
 - Poner el dominio real en `astro.config.mjs`.
 - Ejecutar los pasos de *Conectar Supabase*, y subir fotos reales desde el panel.
+
+
+## Administración ACROMA — CMS y roles (nueva fase)
+
+La rama `feature/admin-cms-v1` incorpora la primera evolución del panel:
+- Dashboard con indicadores consultados desde Supabase.
+- Vista previa del sitio con tamaños de escritorio, tablet y móvil.
+- Accesos directos a los editores existentes de proyectos, servicios, publicaciones, imágenes y datos del negocio.
+- Acceso administrativo por permisos; el administrador principal conserva el acceso completo.
+- Gestión de colaboradores mediante la Edge Function `team-admin`.
+- Modelo CMS para páginas, secciones, revisiones y auditoría.
+
+### Aplicación de la base de datos
+
+1. Confirma que `supabase/schema.sql` ya fue ejecutado.
+2. En Supabase → SQL Editor, ejecuta una sola vez `supabase/admin-cms-rbac.sql`.
+3. No vuelvas a ejecutar `seed.sql` para actualizar datos de contacto: el seed inicial está diseñado para insertar contenido y no reemplazar registros ya existentes.
+4. Mantén el correo principal en `public.admins`; ese usuario conserva el rol de administrador principal.
+
+### Edge Function de colaboradores
+
+Despliega `supabase/functions/team-admin/index.ts` como función `team-admin` con verificación JWT habilitada.
+
+Variables/secretos requeridos en Supabase Functions:
+- `SUPABASE_URL` (entorno administrado por Supabase).
+- `SUPABASE_ANON_KEY` (entorno administrado por Supabase).
+- `SUPABASE_SERVICE_ROLE_KEY` (secreto del entorno; nunca se coloca en el navegador).
+- `APP_SITE_URL=https://acroma-arq.pages.dev`.
+
+Ejemplo con Supabase CLI:
+```bash
+supabase functions deploy team-admin --project-ref qfrfqnjvsdujumyimzap
+supabase secrets set APP_SITE_URL=https://acroma-arq.pages.dev --project-ref qfrfqnjvsdujumyimzap
+```
+
+El panel permite invitar colaboradores con los roles `editor` y `commercial`. El rol principal `admin` no se asigna desde el formulario de colaboradores.
+
+### Permisos iniciales
+
+- `admin`: control total mediante la lista de administradores existente.
+- `editor`: contenido, proyectos, servicios, novedades, testimonios, multimedia y SEO. Puede guardar borradores, pero no publicar.
+- `commercial`: consultas, clientes y agenda.
+
+Los permisos se aplican en Supabase RLS y no solo en la interfaz del panel.
+
+### Alcance de esta primera entrega
+
+El Editor visual incorpora vista previa responsive y accesos a los editores de contenido existentes. El lienzo de selección directa de cualquier texto o bloque de la página, la edición libre de estilos y el renderizado de borradores dentro de la vista previa requieren la siguiente integración del CMS con los componentes públicos. No se debe presentar esa función como terminada hasta completar y probar esa integración.
+
+### Publicación y despliegue
+
+La web actual se genera como sitio estático en Astro. Los cambios de contenido guardados en Supabase se reflejan en el sitio público después de ejecutar el Deploy Hook de Cloudflare Pages. La migración a renderizado bajo demanda en Cloudflare se mantiene como una decisión posterior, que debe probarse en una rama de preview antes de sustituir el despliegue actual.
