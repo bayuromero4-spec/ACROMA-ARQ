@@ -198,7 +198,8 @@ from public.roles r
 join public.permissions p on p.code = any (
   case r.code
     when 'commercial' then array['hub.dashboard','hub.clients.read','hub.clients.manage','hub.sales.manage','hub.whatsapp.read','hub.whatsapp.manage']
-    when 'editor' then array['hub.dashboard','hub.projects.read','hub.projects.manage','hub.tasks.manage']
+    when 'editor' then array['hub.dashboard','hub.clients.read','hub.projects.read','hub.projects.manage','hub.tasks.manage']
+    when 'commercial' then array['hub.dashboard','hub.clients.read','hub.clients.manage','hub.sales.manage','hub.whatsapp.read','hub.whatsapp.manage','hub.projects.read']
     else array[]::text[]
   end
 )
