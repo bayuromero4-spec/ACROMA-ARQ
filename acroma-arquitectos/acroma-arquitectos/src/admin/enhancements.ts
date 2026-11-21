@@ -233,9 +233,12 @@ async function teamView() {
 
 let installed = false;
 let installing = false;
+let installedSide: HTMLElement | null = null;
 async function installExtensions() {
-  const side=document.querySelector('.side');
-  if(!side || installed || installing) return;
+  const side=document.querySelector<HTMLElement>('.side');
+  if(!side) { installed=false; installedSide=null; return; }
+  if(side !== installedSide) { installed=false; installedSide=side; }
+  if(installed || installing) return;
   installing = true;
   const {data:{session}}=await sb.auth.getSession();
   if(!session) { installing = false; return; }
