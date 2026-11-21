@@ -360,3 +360,78 @@ using (bucket_id = 'media' and private.has_permission('media.manage'))
 with check (bucket_id = 'media' and private.has_permission('media.manage'));
 
 -- El administrador principal conserva el acceso total mediante public.admins + is_admin().
+
+
+-- API segura para que el panel consulte los permisos del usuario actual.
+-- El wrapper es SECURITY INVOKER; la comprobación privilegiada vive en el esquema privado.
+create or replace function private.get_my_permissions()
+returns table(permission_code text)
+language sql
+stable
+security definer
+set search_path = pg_catalog, public, private, auth
+as $$
+  select p.code
+  from public.permissions p
+  where exists (
+    select 1
+    from auth.users u
+    join public.admins a on a.email = lower(u.email)
+    where u.id = auth.uid() and u.email_confirmed_at is not null
+  )
+  or exists (
+    select 1
+    from public.user_roles ur
+    join public.role_permissions rp on rp.role_id = ur.role_id
+    where ur.user_id = auth.uid() and rp.permission_id = p.id
+  );
+$$;
+revoke all on function private.get_my_permissions() from public, anon;
+grant execute on function private.get_my_permissions() to authenticated;
+
+create or replace function public.has_permission(permission_code text)
+returns boolean
+language sql
+stable
+security invoker
+set search_path = public, private
+as $$
+  select private.has_permission(permission_code);
+$$;
+revoke all on function public.has_permission(text) from public, anon;
+grant execute on function public.has_permission(text) to authenticated;
+
+create or replace function public.get_my_permissions()
+returns table(permission_code text)
+language sql
+stable
+security invoker
+set search_path = public, private
+as $$
+  select * from private.get_my_permissions();
+$$;
+revoke all on function public.get_my_permissions() from public, anon;
+grant execute on function public.get_my_permissions() to authenticated;
+
+-- Un editor puede guardar borradores, pero solo quien tenga cms.publish puede publicar.
+create or replace function private.guard_cms_publish()
+returns trigger
+language plpgsql
+security invoker
+set search_path = pg_catalog, public, private
+as $$
+begin
+  if new.status = 'published'
+     and (tg_op = 'INSERT' or old.status is distinct from new.status)
+     and not private.has_permission('cms.publish') then
+    raise exception 'No tienes permiso para publicar contenido.'
+      using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function private.guard_cms_publish() from public, anon, authenticated;
+drop trigger if exists cms_pages_guard_publish on public.cms_pages;
+create trigger cms_pages_guard_publish
+before insert or update of status on public.cms_pages
+for each row execute function private.guard_cms_publish();
