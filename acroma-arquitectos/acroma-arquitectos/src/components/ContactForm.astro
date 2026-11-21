@@ -55,7 +55,7 @@ const projectTypes = activeServices.map((service) => service.title);
 
   <div class="field">
     <label for="cf-mensaje">Cuéntanos sobre tu proyecto</label>
-    <textarea id="cf-mensaje" name="mensaje" rows="5" required placeholder="Ubicación del terreno o vivienda, qué necesitas, medidas aproximadas, en qué etapa estás…"></textarea>
+    <textarea id="cf-mensaje" name="mensaje" rows="5" minlength="5" required placeholder="Ubicación del terreno o vivienda, qué necesitas, medidas aproximadas, en qué etapa estás…"></textarea>
   </div>
 
   <label class="check">
@@ -218,6 +218,16 @@ const projectTypes = activeServices.map((service) => service.title);
     }
     const data = new FormData(form);
     const val = (k: string) => String(data.get(k) ?? '').trim();
+
+    if (val('mensaje').length < 5) {
+      const messageField = form.querySelector<HTMLTextAreaElement>('#cf-mensaje');
+      if (messageField) {
+        messageField.setCustomValidity('Cuéntanos un poco más (mínimo 5 caracteres).');
+        messageField.reportValidity();
+        messageField.addEventListener('input', () => messageField.setCustomValidity(''), { once: true });
+      }
+      return;
+    }
 
     // Bots: simulamos éxito sin guardar nada.
     if (val('empresa')) {
