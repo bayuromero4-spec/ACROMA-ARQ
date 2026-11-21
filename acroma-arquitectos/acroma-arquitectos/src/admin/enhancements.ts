@@ -265,7 +265,8 @@ async function visualEditorView() {
   const pages:[string,string][]=[['/','Inicio'],['/servicios','Servicios'],['/proyectos','Proyectos'],['/nosotros','Nosotros'],['/novedades','Novedades'],['/contacto','Contacto']];
   for(const [url,label] of pages){const o=node('option','',label) as HTMLOptionElement;o.value=url;select.append(o);}
   const refresh=button('Actualizar vista',()=>{frame.src=select.value;});
-  const editCopy=button('Editar textos de la página',()=>void pageCopyEditorView(select.value==='/'?'inicio':select.value.slice(1)),true);
+  const pageSlugForPath=(path:string)=>({'/':'inicio','/servicios':'servicios','/nosotros':'nosotros','/novedades':'novedades','/contacto':'contacto'} as Record<string,string>)[path];
+  const editCopy=button('Editar textos de la página',()=>{const slug=pageSlugForPath(select.value);if(slug)void pageCopyEditorView(slug);else toast('La edición de textos de esta página todavía no está habilitada.',true);},true);
   const open=button('Abrir en otra pestaña',()=>window.open(select.value,'_blank','noopener'));
   controls.append(select,refresh,open,editCopy);
   const preview=node('div','x-preview');
@@ -274,7 +275,8 @@ async function visualEditorView() {
   const sizes:[string,string][]=[['Escritorio','100%'],['Tablet','768px'],['Móvil','390px']];
   const sizeControls=node('div','x-actions');
   for(const [label,width] of sizes) sizeControls.append(button(label,()=>{frame.style.maxWidth=width;}));
-  select.addEventListener('change',()=>{frame.src=select.value;editCopy.textContent='Editar textos de la página';editCopy.onclick=()=>void pageCopyEditorView(select.value==='/'?'inicio':select.value.slice(1));});
+  select.addEventListener('change',()=>{frame.src=select.value;editCopy.disabled=!pageSlugForPath(select.value);});
+  editCopy.disabled=!pageSlugForPath(select.value);
   preview.append(sizeControls,document.createElement('br'),frame);
   const shortcuts=node('div','x-card');
   shortcuts.append(node('h3','','Editar contenido de esta página'),node('p','x-muted','Selecciona un módulo para abrir su editor. Los cambios guardados se reflejarán en la vista pública al publicar.'));
