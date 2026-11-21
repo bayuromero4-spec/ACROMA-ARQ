@@ -236,9 +236,22 @@ async function pageCopyEditorView(initialSlug='inicio') {
     if(status==='published'){
       const {data:hook}=await sb.from('site_settings').select('value').eq('key','deploy_hook').maybeSingle();
       if(hook?.value){
-        try{const response=await fetch(hook.value,{method:'POST'});if(!response.ok)throw new Error('El servidor de publicación respondió '+response.status);state.textContent='Textos publicados. Se inició la actualización de la web.';}
-        catch(e){state.textContent='Textos publicados en Supabase, pero no se pudo iniciar el despliegue. Revisa Publicar cambios.';}
-      }else state.textContent='Textos publicados en Supabase. Configura el enlace de despliegue en «Publicar cambios» para actualizar la web automáticamente.';
+        try{
+          const deployUrl=String(hook.value).trim();
+          if(!/^https:\/\/api\.cloudflare\.com\/client\/v4\/pages\/webhooks\/deploy_hooks\/[A-Za-z0-9-]+$/.test(deployUrl)) throw new Error('El enlace guardado no tiene el formato de un Deploy Hook de Cloudflare Pages.');
+          // Cloudflare Deploy Hooks no expone CORS al navegador. Igual que el módulo
+          // «Publicar cambios», se envía como no-cors; la respuesta será opaca.
+          await fetch(deployUrl,{method:'POST',mode:'no-cors'});
+          state.textContent='Textos publicados en Supabase. Se envió la solicitud a Cloudflare; la web se actualizará cuando termine el despliegue (normalmente 1–2 minutos).';
+          toast('Solicitud de despliegue enviada a Cloudflare.');
+        }catch(e){
+          state.textContent='Textos publicados en Supabase, pero no se pudo enviar la solicitud a Cloudflare. Revisa el Deploy Hook en «Publicar cambios» y vuelve a pulsar «Publicar textos».';
+          toast('No se pudo iniciar el despliegue. Revisa el enlace de Cloudflare.',true);
+        }
+      }else{
+        state.textContent='Textos publicados en Supabase, pero falta configurar el Deploy Hook. Ve a «Publicar cambios», guarda el enlace de Cloudflare y vuelve a publicar.';
+        toast('Falta configurar el Deploy Hook de Cloudflare.',true);
+      }
       toast('Textos publicados. La web se actualizará al terminar el despliegue.');
     }else{state.textContent='Borrador guardado. La web pública conserva la versión publicada.';toast('Borrador guardado.');}
     save.disabled=false;publish.disabled=false;
