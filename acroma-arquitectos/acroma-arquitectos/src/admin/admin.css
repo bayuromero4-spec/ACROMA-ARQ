@@ -113,3 +113,95 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); outl
 }
 .side__foot span { overflow-wrap: anywhere; }
 .form + .form { margin-top: 28px; }
+
+
+/* ACROMA ADMIN — rediseño de interfaz */
+:root{
+  --navy:#101d33;--navy-2:#172945;--gold:#c7a15a;--gold-ink:#89672b;
+  --bg:#f5f6f8;--card:#fff;--line:#e7eaf0;--ink:#17243a;--muted:#778296;
+  --shadow-sm:0 2px 8px rgba(16,29,51,.04);--shadow-md:0 12px 34px rgba(16,29,51,.07);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body{background:#f4f5f7;color:var(--ink);font-size:14px}
+.shell{grid-template-columns:264px minmax(0,1fr);background:#f4f5f7}
+.side{background:linear-gradient(180deg,#111f37 0%,#0d192d 100%);padding:26px 16px 18px;gap:7px;border-right:1px solid rgba(255,255,255,.05);box-shadow:8px 0 30px rgba(15,29,51,.06);z-index:3}
+.side__brand{font-size:1.12rem;letter-spacing:.18em;padding:7px 13px 27px;color:#fff;text-transform:uppercase}
+.side__brand em{color:#d5b46e}
+.side button.nav{position:relative;min-height:44px;padding:11px 14px 11px 44px;border-radius:11px;color:#aebbd0;font-size:.9rem;font-weight:550;transition:background .18s,color .18s,transform .18s}
+.side button.nav:before{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:15px;color:#9caec8;width:18px;text-align:center}
+.side button.nav[data-key="projects"]:before{content:"▦"}
+.side button.nav[data-key="services"]:before{content:"◇"}
+.side button.nav[data-key="posts"]:before{content:"▤"}
+.side button.nav[data-key="testimonials"]:before{content:"☆"}
+.side button.nav[data-key="siteimages"]:before{content:"▧"}
+.side button.nav[data-key="business"]:before{content:"⌂"}
+.side button.nav[data-key="leads"]:before{content:"✉"}
+.side button.nav[data-key="publish"]:before{content:"↥"}
+.side button.nav[data-ext-key="dashboard"]:before{content:"▦"}
+.side button.nav[data-ext-key="visual-editor"]:before{content:"▣"}
+.side button.nav[data-ext-key="team"]:before{content:"♙"}
+.side button.nav:hover{background:rgba(255,255,255,.075);color:#fff;transform:translateX(2px)}
+.side button.nav[aria-current="true"]{background:linear-gradient(90deg,rgba(199,161,90,.22),rgba(199,161,90,.08));color:#fff;box-shadow:inset 3px 0 #d1ad69}
+.side button.nav[aria-current="true"]:before{color:#e0c27f}
+.side__foot{padding:16px 12px 4px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto;gap:11px;font-size:.78rem}
+.side__foot a{font-weight:650;text-decoration:none}
+.side__foot .btn{border-radius:10px;min-height:39px}
+.main{padding:34px clamp(22px,3.3vw,54px) 64px;min-width:0;max-width:1800px;width:100%;margin:0 auto}
+.main:before{content:"ACROMA  /  ADMINISTRACIÓN";display:block;color:#9aa3b1;font-size:10px;font-weight:800;letter-spacing:.16em;margin-bottom:20px}
+.top{align-items:flex-end;margin-bottom:25px;padding-bottom:20px;border-bottom:1px solid #e5e8ed}
+.top h2,.x-heading h2{font-size:1.75rem;letter-spacing:-.045em;font-weight:760;color:#15243c}
+.hint,.x-muted{color:#7c8798;font-size:.9rem;line-height:1.55}
+.btn{border-radius:10px;min-height:42px;padding:0 17px;box-shadow:none;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover,.x-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(16,29,51,.1)}
+.btn--gold,.x-btn--gold{background:#c9a45f;color:#14223a;border-color:#c9a45f}
+.btn--gold:hover,.x-btn--gold:hover{background:#d5b575}
+.card,.x-card{background:#fff;border:1px solid #e8ebf0;border-radius:16px;box-shadow:var(--shadow-sm)}
+.list{gap:12px}
+.row{grid-template-columns:72px minmax(0,1fr) auto;gap:17px;padding:13px 16px;border:1px solid #e7eaf0;border-radius:16px;box-shadow:var(--shadow-sm);transition:transform .16s,box-shadow .16s,border-color .16s}
+.row:hover{transform:translateY(-2px);border-color:#d8dfe9;box-shadow:var(--shadow-md)}
+.row img{width:72px;height:58px;border-radius:11px}
+.row__title{font-size:.96rem;font-weight:720;letter-spacing:-.015em}
+.row__meta{font-size:.85rem;margin-top:3px;color:#7a8494}
+.pill{margin-left:7px;padding:3px 9px;font-size:.7rem;letter-spacing:.01em}
+.row .btn{min-width:78px}
+.empty{background:#fff;border:1px dashed #d9dee7}
+.x-view{gap:22px}
+.x-heading{align-items:flex-end;padding-bottom:17px;border-bottom:1px solid #e5e8ed}
+.x-heading h2{font-size:1.75rem;letter-spacing:-.045em}
+.x-grid{gap:16px}
+.x-card{padding:21px}
+.x-stat{font-size:2.1rem;letter-spacing:-.05em;color:#172b49}
+.x-card h3{font-size:1.02rem;color:#1b2b45;letter-spacing:-.02em;margin:0 0 7px}
+.x-shortcuts{gap:12px}
+.x-shortcut{border:1px solid #e7eaf0;border-radius:13px;padding:16px;background:linear-gradient(145deg,#fff,#fbfcfd);transition:transform .16s,border-color .16s,box-shadow .16s}
+.x-shortcut:hover{transform:translateY(-2px);border-color:#d8c18f;box-shadow:var(--shadow-md)}
+.x-preview{border:1px solid #e2e6ed;background:#e9edf2;border-radius:17px;padding:14px}
+.x-preview__frame{box-shadow:0 8px 28px rgba(16,29,51,.12)}
+.x-btn{border-radius:10px;min-height:39px;padding:0 14px;transition:all .15s}
+.x-table th{font-size:.7rem;letter-spacing:.1em}
+.x-table td{padding:14px 10px}
+.form{max-width:980px}
+.field input,.field select,.field textarea{border-color:#dfe4eb;border-radius:10px}
+#toast{border-radius:12px;box-shadow:var(--shadow-md)}
+@media(max-width:1000px){
+ .shell{grid-template-columns:220px minmax(0,1fr)}
+ .side{padding:20px 12px}
+ .main{padding:26px 22px 50px}
+}
+@media(max-width:760px){
+ .shell{grid-template-columns:1fr}
+ .side{position:relative;height:auto;flex-direction:row;flex-wrap:wrap;padding:12px;gap:5px}
+ .side__brand{width:100%;padding:5px 9px 12px}
+ .side button.nav{width:auto;min-height:38px;padding:8px 11px 8px 34px;font-size:.78rem}
+ .side button.nav:before{left:10px}
+ .side__foot{width:100%;margin-top:8px;padding:10px 8px 0}
+ .main{padding:22px 14px 42px}
+ .main:before{font-size:9px;margin-bottom:14px}
+ .row{grid-template-columns:58px minmax(0,1fr);gap:12px}
+ .row img{width:58px;height:52px}
+ .row>div:last-child{grid-column:2}
+ .row .btn{min-height:34px}
+ .top{align-items:flex-start}
+ .x-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:440px){.x-grid{grid-template-columns:1fr 1fr}.x-stat{font-size:1.65rem}.x-card{padding:15px}}
