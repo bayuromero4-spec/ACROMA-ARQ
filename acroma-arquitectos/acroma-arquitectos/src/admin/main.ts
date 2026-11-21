@@ -529,6 +529,8 @@ async function refreshBadge() {
   if (b) { b.textContent = String(count ?? 0); (b as HTMLElement).style.display = count ? '' : 'none'; }
 }
 function shell(email: string) {
+  const allowedSections = getSections();
+  if (!allowedSections.some(([key]) => key === current)) current = allowedSections[0]?.[0] ?? 'projects';
   app.replaceChildren(h('div', { class: 'shell' },
     h('aside', { class: 'side' },
       h('div', { class: 'side__brand' }, 'ACR', h('em', {}, 'OMA'), ' · Panel'),
