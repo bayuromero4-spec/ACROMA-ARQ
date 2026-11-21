@@ -420,7 +420,7 @@ returns trigger
 language plpgsql
 security invoker
 set search_path = pg_catalog, public, private
-as $
+as $guard$
 begin
   if new.status = 'published'
      and (tg_op = 'INSERT' or old.status is distinct from new.status)
@@ -430,7 +430,7 @@ begin
   end if;
   return new;
 end;
-$;
+$guard$;
 revoke all on function private.guard_content_publish() from public, anon, authenticated;
 
 drop trigger if exists cms_pages_guard_publish on public.cms_pages;
