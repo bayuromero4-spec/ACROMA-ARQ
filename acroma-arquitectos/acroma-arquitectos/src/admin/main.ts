@@ -410,7 +410,7 @@ async function leadsView() {
   const { data, error } = await sb.from('leads').select('*').order('created_at', { ascending: false }).limit(300);
   if (error) return main().replaceChildren(h('p', { class: 'err' }, errMsg(error)));
   const list = h('div', { class: 'list' });
-  if (!data?.length) list.append(h('div', { class: 'empty' }, 'Todavía no hay consultas.'));
+  if (!data?.length) list.append(h('div', { class: 'empty empty--state' }, h('span', { class: 'empty__icon', 'aria-hidden': 'true' }, '✉'), h('strong', {}, 'Tu bandeja está al día'), h('p', {}, 'Cuando alguien envíe el formulario de contacto de la web, su consulta aparecerá aquí para que puedas darle seguimiento.')));
   for (const l of data ?? []) {
     const sel = h('select', {}, ...['nuevo', 'contactado', 'cerrado'].map((s) => h('option', { value: s, selected: s === l.status }, s[0].toUpperCase() + s.slice(1)))) as HTMLSelectElement;
     const notes = h('textarea', { rows: 2, placeholder: 'Notas internas (solo tú las ves)' }) as HTMLTextAreaElement; notes.value = l.notes ?? '';
