@@ -250,16 +250,25 @@ async function installExtensions() {
     ['visual-editor','Editor visual',isAdmin===true||set.has('cms.edit'),visualEditorView],
     ['team','Usuarios y permisos',isAdmin===true||set.has('users.manage'),teamView],
   ];
+  // Un único grupo de navegación para extensiones; evita duplicados al reconstruir el panel.
+  side.querySelectorAll('[data-ext-group="true"]').forEach((group,index)=>{if(index>0)group.remove();});
+  let extensionGroup=side.querySelector<HTMLElement>('[data-ext-group="true"]');
+  if(!extensionGroup){
+    extensionGroup=node('div','side__group');
+    extensionGroup.dataset.extGroup='true';
+    extensionGroup.append(node('div','side__label','GESTIÓN'));
+    const foot=side.querySelector('.side__foot');
+    side.insertBefore(extensionGroup,foot);
+  }
   for(const [key,label,allowed,handler] of items){
-    if(!allowed)continue;
+    if(!allowed || extensionGroup.querySelector(`button[data-ext-key="${key}"]`))continue;
     const b=node('button','nav',label) as HTMLButtonElement;
     b.dataset.extKey=key;
     b.addEventListener('click',()=>{
       document.querySelectorAll<HTMLButtonElement>('button.nav').forEach((item)=>item.setAttribute('aria-current',String(item===b)));
       void handler();
     });
-    const foot=side.querySelector('.side__foot');
-    side.insertBefore(b,foot);
+    extensionGroup.append(b);
   }
   installed=true;
   installing=false;
