@@ -95,11 +95,13 @@ Deno.serve(async (req) => {
     user = invited.user;
   }
 
-  const { error: assignError } = await admin.from("user_roles").upsert({
+  const { error: clearError } = await admin.from("user_roles").delete().eq("user_id", user.id);
+  if (clearError) return json({ error: clearError.message }, 500);
+  const { error: assignError } = await admin.from("user_roles").insert({
     user_id: user.id,
     role_id: role.id,
     assigned_by: authData.user.id,
-  }, { onConflict: "user_id,role_id" });
+  });
   if (assignError) return json({ error: assignError.message }, 500);
 
   return json({
