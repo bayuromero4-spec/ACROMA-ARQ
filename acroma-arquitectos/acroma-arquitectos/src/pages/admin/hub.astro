@@ -1,0 +1,20 @@
+---
+import '../../admin/hub.css';
+import { SUPABASE_URL, SUPABASE_KEY, hasSupabase } from '../../lib/supabase';
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="theme-color" content="#101c32" />
+  <title>Business Hub · ACROMA</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body class="hub-body" data-sb-url={hasSupabase ? SUPABASE_URL : ''} data-sb-key={hasSupabase ? SUPABASE_KEY : ''}>
+  <div id="hub-app"><div class="hub-boot">ACROMA <span>BUSINESS HUB</span><p>Preparando espacio de trabajo…</p></div></div>
+  <div id="hub-toast" role="status" aria-live="polite"></div>
+  <script>import '../../admin/hub.ts';</script>
+</body>
+</html>
