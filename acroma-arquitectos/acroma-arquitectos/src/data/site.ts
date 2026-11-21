@@ -6,16 +6,15 @@ import type { BusinessInfo, ProcessStep, Reason } from './types';
  * Los datos de contacto proceden de la web actual de ACROMA.
  */
 export const business: BusinessInfo = {
-  name: 'ACROMA Arquitectos',
-  legalName: 'ACROMA Arquitectos',
-  tagline: 'Arquitectura, construcción y reformas en Cajamarca',
+  name: 'ACROMA ARQUITECTOS',
+  legalName: 'ACROMA ARQUITECTOS',
+  tagline: 'Arquitectura pensada para vivir mejor',
   description:
     'Estudio de arquitectura y construcción en Cajamarca. Diseño arquitectónico, reformas integrales, remodelación de cocinas y baños, ampliaciones, construcción y planos de todas las especialidades.',
-  url: 'https://acroma-arquitectos.com',
-  email: 'contacto@acroma-arquitectos.com',
+  url: 'https://acroma-arq.pages.dev',
+  email: 'arquitectos.acroma@gmail.com',
   phones: [
     { label: 'WhatsApp principal', display: '960 577 902', e164: '+51960577902' },
-    { label: 'WhatsApp secundario', display: '948 940 408', e164: '+51948940408' },
   ],
   whatsapp: { e164: '51960577902', display: '960 577 902' },
   address: {
