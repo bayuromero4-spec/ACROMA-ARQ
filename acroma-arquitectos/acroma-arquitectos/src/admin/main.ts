@@ -480,7 +480,7 @@ async function siteImagesView() {
 
 async function publishView() {
   const { data } = await sb.from('site_settings').select('value').eq('key', 'deploy_hook').maybeSingle();
-  const input = h('input', { type: 'url', placeholder: 'https://api.netlify.com/build_hooks/…', value: data?.value ?? '' }) as HTMLInputElement;
+  const input = h('input', { type: 'url', placeholder: 'https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…', value: data?.value ?? '' }) as HTMLInputElement;
   const saveHook = h('button', { class: 'btn btn--ghost', type: 'button', onclick: async () => {
     const r = await sb.from('site_settings').upsert({ key: 'deploy_hook', value: input.value.trim() });
     toast(r.error ? errMsg(r.error) : 'Enlace guardado ✓', !!r.error);
@@ -495,11 +495,11 @@ async function publishView() {
     go.disabled = false; go.textContent = 'Publicar cambios ahora';
   };
   main().replaceChildren(
-    h('div', { class: 'top' }, h('div', {}, h('h2', {}, 'Publicar cambios'), h('p', { class: 'hint' }, 'La web pública es estática: los cambios guardados aquí aparecen cuando la reconstruyes.'))),
+    h('div', { class: 'top' }, h('div', {}, h('h2', {}, 'Publicar cambios'), h('p', { class: 'hint' }, 'La web pública se genera en Cloudflare Pages: los cambios guardados aparecen después de ejecutar el Deploy Hook.'))),
     h('div', { class: 'card form' },
       h('p', {}, 'Después de editar proyectos, servicios, testimonios o datos del negocio, pulsa el botón. La web se actualiza en 1–2 minutos.'),
       go,
-      h('div', { class: 'field' }, h('label', {}, 'Enlace de publicación (Deploy hook)'), input, h('p', { class: 'help' }, 'Se obtiene una sola vez en el hosting (Netlify → Site configuration → Build hooks). Ver README.')),
+      h('div', { class: 'field' }, h('label', {}, 'Enlace de publicación (Deploy hook)'), input, h('p', { class: 'help' }, 'Se obtiene en Cloudflare Pages → Settings → Builds & deployments → Deploy hooks. Ver README.')),
       saveHook));
 }
 
