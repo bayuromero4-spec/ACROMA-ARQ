@@ -104,17 +104,17 @@ async function dashboardView() {
   const quick = node('div','x-card');
   quick.append(node('h3','','Accesos rápidos'),node('p','x-muted','Continúa trabajando en el contenido del sitio.'));
   const actions = node('div','x-shortcuts');
-  const shortcuts: [string,string,string][] = [
-    ['projects','Proyectos','Portafolio'],
-    ['services','Servicios','Catálogo'],
-    ['siteimages','Imágenes','Recursos visuales'],
-    ['business','Datos del negocio','Contacto y marca'],
-    ['leads','Consultas','CRM'],
-    ['publish','Publicar cambios','Sitio público'],
+  const shortcuts: [string,string,string,string][] = [
+    ['projects','Proyectos','Portafolio','projects.manage'],
+    ['services','Servicios','Catálogo','services.manage'],
+    ['siteimages','Imágenes','Recursos visuales','site_images.manage'],
+    ['business','Datos del negocio','Contacto y marca','business.manage'],
+    ['leads','Consultas','CRM','leads.read'],
+    ['publish','Publicar cambios','Sitio público','cms.publish'],
   ];
-  for (const [key,label,sub] of shortcuts) {
-    if (key==='leads' && !perms.has('leads.read')) continue;
-    if (key==='publish' && !perms.has('cms.publish')) continue;
+  const {data: rootAdmin}=await sb.rpc('is_admin');
+  for (const [key,label,sub,permission] of shortcuts) {
+    if (rootAdmin!==true && !perms.has(permission)) continue;
     const b=node('button','x-shortcut'); b.type='button';
     const text=node('div'); text.append(node('div','',label),node('span','',sub));
     b.append(text,node('strong','','→')); b.addEventListener('click',()=>openLegacy(key)); actions.append(b);
@@ -151,14 +151,18 @@ async function visualEditorView() {
   shortcuts.append(node('h3','','Editar contenido de esta página'),node('p','x-muted','Selecciona un módulo para abrir su editor. Los cambios guardados se reflejarán en la vista pública al publicar.'));
   const shortcutGrid=node('div','x-shortcuts');
   const modules:[string,string,string][]=[
-    ['business','Datos generales','Nombre, textos de marca y contacto'],
-    ['siteimages','Imágenes del sitio','Portada y fotografía de equipo'],
-    ['services','Servicios','Textos, características e imágenes'],
-    ['projects','Proyectos','Fichas, categorías y galerías'],
-    ['testimonials','Testimonios','Opiniones y valoraciones'],
-    ['posts','Novedades','Noticias y campañas'],
+    ['business','Datos generales','Nombre, textos de marca y contacto','business.manage'],
+    ['siteimages','Imágenes del sitio','Portada y fotografía de equipo','site_images.manage'],
+    ['services','Servicios','Textos, características e imágenes','services.manage'],
+    ['projects','Proyectos','Fichas, categorías y galerías','projects.manage'],
+    ['testimonials','Testimonios','Opiniones y valoraciones','testimonials.manage'],
+    ['posts','Novedades','Noticias y campañas','posts.manage'],
   ];
-  for(const [key,label,desc] of modules){
+  const {data: currentPermissions}=await sb.rpc('get_my_permissions');
+  const permissionSet=new Set((currentPermissions??[]).map((p:Row)=>p.permission_code));
+  const {data: rootAdmin}=await sb.rpc('is_admin');
+  for(const [key,label,desc,permission] of modules){
+    if(rootAdmin!==true && !permissionSet.has(permission)) continue;
     const b=node('button','x-shortcut');b.type='button';
     const t=node('div');t.append(node('div','',label),node('span','',desc));
     b.append(t,node('strong','','↗'));b.addEventListener('click',()=>openLegacy(key));shortcutGrid.append(b);
@@ -228,11 +232,13 @@ async function teamView() {
 }
 
 let installed = false;
+let installing = false;
 async function installExtensions() {
   const side=document.querySelector('.side');
-  if(!side || installed) return;
+  if(!side || installed || installing) return;
+  installing = true;
   const {data:{session}}=await sb.auth.getSession();
-  if(!session) return;
+  if(!session) { installing = false; return; }
   const {data:permissions}=await sb.rpc('get_my_permissions');
   const set=new Set((permissions??[]).map((p:Row)=>p.permission_code));
   const {data:isAdmin}=await sb.rpc('is_admin');
@@ -253,6 +259,7 @@ async function installExtensions() {
     side.insertBefore(b,foot);
   }
   installed=true;
+  installing=false;
 }
 const observer=new MutationObserver(()=>{void installExtensions();});
 observer.observe(document.body,{childList:true,subtree:true});
