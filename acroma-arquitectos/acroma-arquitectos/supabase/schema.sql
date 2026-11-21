@@ -332,3 +332,7 @@ values
    array['Escribe aquí los detalles de la campaña. Cuando esté lista, cambia el estado a «Publicado» y pulsa «Publicar cambios».'],
    'Quiero esta campaña', '/contacto#formulario', current_date, current_date + 30, true, 'draft')
 on conflict (slug) do nothing;
+
+-- Keep the Business Hub project form aligned with its Google Drive folder field.
+alter table public.hub_projects add column if not exists drive_url text not null default '';
+comment on column public.hub_projects.drive_url is 'Optional Google Drive folder URL associated with the project';
