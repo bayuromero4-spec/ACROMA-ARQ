@@ -531,14 +531,30 @@ async function refreshBadge() {
 function shell(email: string) {
   const allowedSections = getSections();
   if (!allowedSections.some(([key]) => key === current)) current = allowedSections[0]?.[0] ?? 'projects';
+  const sectionGroups: [string, string[]][] = [
+    ['CONTENIDO', ['projects','services','posts','testimonials']],
+    ['RECURSOS', ['siteimages','business','leads']],
+    ['PUBLICACIÓN', ['publish']],
+  ];
+  const navItems = sectionGroups.flatMap(([group, keys]) => {
+    const visible = allowedSections.filter(([key]) => keys.includes(key));
+    return visible.length ? [h('div', { class: 'side__group' },
+      h('div', { class: 'side__label' }, group),
+      ...visible.map(([key, label]) => h('button', { class: 'nav', 'data-key': key, onclick: () => show(key) },
+        label, key === 'leads' ? h('span', { class: 'badge', 'data-leads-badge': '', style: 'display:none' }, '0') : null)))] : [];
+  });
   app.replaceChildren(h('div', { class: 'shell' },
     h('aside', { class: 'side' },
-      h('div', { class: 'side__brand' }, 'ACR', h('em', {}, 'OMA'), ' · Panel'),
-      ...getSections().map(([k, l]) => h('button', { class: 'nav', 'data-key': k, onclick: () => show(k) }, l, k === 'leads' ? h('span', { class: 'badge', 'data-leads-badge': '', style: 'display:none' }, '0') : null)),
-      h('div', { class: 'side__foot' }, h('span', {}, email),
-        h('a', { href: '/', target: '_blank', style: 'color:#e4c37d' }, 'Ver la web ↗'),
+      h('div', { class: 'side__brand' }, 'ACR', h('em', {}, 'OMA'), h('small', {}, 'STUDIO CONTROL')),
+      h('div', { class: 'side__workspace' }, h('span', {}, 'ESPACIO DE TRABAJO'), h('strong', {}, 'Administración')),
+      ...navItems,
+      h('div', { class: 'side__foot' }, h('div', { class: 'side__profile' }, h('span', { class: 'side__avatar' }, (email[0] || 'A').toUpperCase()), h('span', {}, email)),
+        h('a', { href: '/', target: '_blank', rel: 'noopener', style: 'color:#e4c37d' }, 'Ver sitio web ↗'),
         h('button', { class: 'btn btn--ghost btn--sm', style: 'color:#fff;border-color:rgba(255,255,255,.3)', onclick: async () => { await sb.auth.signOut(); loginView(); } }, 'Cerrar sesión'))),
-    h('main', { class: 'main', id: 'main' })));
+    h('div', { class: 'workspace' },
+      h('header', { class: 'workspace__topbar' }, h('div', {}, h('span', {}, 'ACROMA ARQUITECTOS'), h('strong', {}, 'Panel de administración')),
+        h('div', { class: 'workspace__right' }, h('span', { class: 'workspace__secure' }, '●  Sesión segura'), h('span', { class: 'workspace__user' }, email))),
+      h('main', { class: 'main', id: 'main' }))));
   refreshBadge();
   show(current);
 }
