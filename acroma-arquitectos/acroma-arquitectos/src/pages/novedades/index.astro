@@ -4,12 +4,13 @@ import PageHero from '../../components/PageHero.astro';
 import PostCard from '../../components/PostCard.astro';
 import SocialLinks from '../../components/SocialLinks.astro';
 import CtaBand from '../../components/CtaBand.astro';
-import { getBusiness, getPosts } from '../../lib/content';
+import { getBusiness, getPosts , getPageCopy } from '../../lib/content';
 import { breadcrumbSchema } from '../../lib/seo';
 
 const business = await getBusiness();
 const posts = await getPosts();
 const site = Astro.site!.toString().replace(/\/$/, '');
+const pageCopy = await getPageCopy('novedades', 'hero');
 ---
 
 <BaseLayout
@@ -22,6 +23,7 @@ const site = Astro.site!.toString().replace(/\/$/, '');
   ])}
 >
   <PageHero
+    copy={pageCopy}
     eyebrow="Novedades"
     title="Campañas, avances y noticias del estudio."
     lead="Aquí publicamos las promociones del momento, obras en marcha y novedades de ACROMA."
