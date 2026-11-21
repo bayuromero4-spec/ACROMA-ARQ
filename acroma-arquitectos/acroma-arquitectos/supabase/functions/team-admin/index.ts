@@ -95,14 +95,25 @@ Deno.serve(async (req) => {
     user = invited.user;
   }
 
-  const { error: clearError } = await admin.from("user_roles").delete().eq("user_id", user.id);
-  if (clearError) return json({ error: clearError.message }, 500);
-  const { error: assignError } = await admin.from("user_roles").insert({
+  // Primero garantiza la nueva asignación; nunca deja al colaborador sin rol
+  // si la inserción falla. La clave primaria evita duplicados.
+  const { error: assignError } = await admin.from("user_roles").upsert({
     user_id: user.id,
     role_id: role.id,
     assigned_by: authData.user.id,
-  });
+    assigned_at: new Date().toISOString(),
+  }, { onConflict: "user_id,role_id" });
   if (assignError) return json({ error: assignError.message }, 500);
+
+  // Después retira los roles anteriores. Si esto falla, la nueva asignación
+  // sigue activa y el administrador puede corregir los roles sin bloquear al usuario.
+  const { error: clearError } = await admin.from("user_roles")
+    .delete()
+    .eq("user_id", user.id)
+    .neq("role_id", role.id);
+  if (clearError) {
+    return json({ error: "El nuevo rol quedó asignado, pero no se pudieron retirar los roles anteriores: " + clearError.message }, 500);
+  }
 
   return json({
     ok: true,
