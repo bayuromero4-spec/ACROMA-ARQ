@@ -73,7 +73,7 @@ const projectTypes = [
     <span>Acepto que ACROMA use estos datos para responder a mi consulta.</span>
   </label>
 
-  <button class="btn btn--gold" type="submit" data-submit>Enviar solicitud</button>
+  <button class="btn btn--gold" type="submit" data-submit>Enviar solicitud y continuar por WhatsApp</button>
   <p class="form__note">Respondemos en menos de 24 horas hábiles con una orientación inicial.</p>
 
   <div class="form__status" role="status" aria-live="polite" data-status hidden></div>
@@ -275,7 +275,7 @@ const projectTypes = [
       if (!res.ok) throw new Error(String(res.status));
       form.reset();
       show(
-        '<strong>¡Gracias!</strong> Recibimos tu consulta y te responderemos en menos de 24 horas hábiles. Si es urgente, también puedes <a target="_blank" rel="noopener noreferrer">escribirnos por WhatsApp</a>.',
+        '<strong>¡Solicitud registrada!</strong> Tus datos ya están en ACROMA. Para iniciar la conversación, <a target="_blank" rel="noopener noreferrer">abrir WhatsApp y enviar tu consulta</a>. Recuerda pulsar Enviar en WhatsApp.',
         wa,
       );
     } catch {
