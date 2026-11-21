@@ -118,6 +118,15 @@ El hero tiene un slot `media`. Instrucciones en los comentarios de `src/componen
 - Ejecutar los pasos de *Conectar Supabase*, y subir fotos reales desde el panel.
 
 
+## ACROMA Business Hub (nueva fase)
+
+- Nueva ruta privada: `/admin/hub`.
+- CRM, oportunidades, cotizaciones, contratos, proyectos, tareas, agenda, finanzas y bandeja de mensajes.
+- Base de datos adicional: `supabase/business-hub-v1.sql` (ya aplicada al proyecto ACROMA `qfrfqnjvsdujumyimzap`).
+- Moneda de operación: PEN (S/). Familias de proyecto: arquitectura/construcción e inmobiliario.
+- WhatsApp Business Platform queda preparado a nivel de almacenamiento e interfaz; la conexión de Meta requiere WABA ID, Phone Number ID, token permanente, verify token y webhook en un entorno seguro.
+- El CMS existente sigue disponible en `/admin`; el Business Hub no lo reemplaza.
+
 ## Administración ACROMA — CMS y roles (nueva fase)
 
 La rama `feature/admin-cms-v1` incorpora la primera evolución del panel:
