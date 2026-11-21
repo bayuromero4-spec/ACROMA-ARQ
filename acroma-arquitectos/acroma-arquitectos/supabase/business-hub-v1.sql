@@ -204,24 +204,33 @@ join public.permissions p on p.code = any (
 )
 on conflict do nothing;
 
--- Every business table is private to authenticated staff with an explicit module permission.
+-- Every business table is private to authenticated staff with module-specific permissions.
 do $$
-declare t text;
+declare t text; read_perm text; write_perm text;
 begin
   foreach t in array array['hub_clients','hub_opportunities','hub_quotes','hub_contracts','hub_projects','hub_tasks','hub_events','hub_transactions','hub_whatsapp_messages'] loop
+    read_perm := case
+      when t = 'hub_clients' then 'hub.clients.read'
+      when t in ('hub_opportunities','hub_quotes','hub_contracts') then 'hub.sales.manage'
+      when t = 'hub_projects' then 'hub.projects.read'
+      when t in ('hub_tasks','hub_events') then 'hub.tasks.manage'
+      when t = 'hub_transactions' then 'hub.finance.read'
+      when t = 'hub_whatsapp_messages' then 'hub.whatsapp.read'
+    end;
+    write_perm := case
+      when t = 'hub_clients' then 'hub.clients.manage'
+      when t in ('hub_opportunities','hub_quotes','hub_contracts') then 'hub.sales.manage'
+      when t = 'hub_projects' then 'hub.projects.manage'
+      when t in ('hub_tasks','hub_events') then 'hub.tasks.manage'
+      when t = 'hub_transactions' then 'hub.finance.manage'
+      when t = 'hub_whatsapp_messages' then 'hub.whatsapp.manage'
+    end;
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists %I on public.%I', t || '_staff_access', t);
-    execute format('create policy %I on public.%I for all to authenticated using ('
-      || 'private.has_permission(''hub.dashboard'') and '
-      || 'case when %L in (''hub_transactions'') then private.has_permission(''hub.finance.read'') else true end'
-      || ') with check (private.has_permission(''hub.dashboard'') and '
-      || 'case when %L in (''hub_transactions'') then private.has_permission(''hub.finance.manage'') '
-      || 'when %L in (''hub_projects'') then private.has_permission(''hub.projects.manage'') '
-      || 'when %L in (''hub_tasks'',''hub_events'') then private.has_permission(''hub.tasks.manage'') '
-      || 'when %L in (''hub_whatsapp_messages'') then private.has_permission(''hub.whatsapp.manage'') '
-      || 'when %L in (''hub_quotes'',''hub_contracts'',''hub_opportunities'') then private.has_permission(''hub.sales.manage'') '
-      || 'else private.has_permission(''hub.clients.manage'') end)',
-      t || '_staff_access', t, t, t, t, t, t);
+    execute format('create policy %I on public.%I for select to authenticated using (private.has_permission(%L))', t || '_read', t, read_perm);
+    execute format('create policy %I on public.%I for insert to authenticated with check (private.has_permission(%L))', t || '_insert', t, write_perm);
+    execute format('create policy %I on public.%I for update to authenticated using (private.has_permission(%L)) with check (private.has_permission(%L))', t || '_update', t, write_perm, write_perm);
+    execute format('create policy %I on public.%I for delete to authenticated using (private.has_permission(%L))', t || '_delete', t, write_perm);
   end loop;
 end $$;
 
