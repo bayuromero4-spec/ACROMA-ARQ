@@ -8,6 +8,7 @@ interface Props {
   title: string;
   lead?: string;
   breadcrumbs?: Crumb[];
+  copy?: Record<string, string>;
 }
 const { eyebrow, title, lead, breadcrumbs = [], copy = {} } = Astro.props;
 ---
