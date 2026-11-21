@@ -161,3 +161,38 @@
 .hub-task-status{width:100%;min-height:42px;font-weight:700}
 .hub-task-card .hub-actions{margin-top:0}
 @media(max-width:620px){.hub-task-grid{grid-template-columns:1fr}.hub-task-card{padding:15px}}
+
+/* ACROMA studio dashboard: calm hierarchy, actionable metrics, responsive cards */
+.hub-quick-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:13px 15px;margin:0 0 18px;border:1px solid #e4eaf1;border-radius:16px;background:rgba(255,255,255,.78);box-shadow:0 8px 24px rgba(23,41,68,.035)}
+.hub-quick-copy{display:grid;gap:3px;margin-right:auto}.hub-quick-copy strong{font:700 12px Manrope;color:#20324b}.hub-quick-copy small{font-size:10px;color:#8491a3}
+.hub-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:16px;align-items:stretch}
+.hub-dashboard-grid>.hub-card{min-width:0}.hub-dashboard-finance{grid-row:span 1}
+.hub-dashboard-chip{font-size:9px;font-weight:800;letter-spacing:.1em;color:#9a7842;background:#f5eddf;border-radius:99px;padding:6px 9px}
+.hub-finance-chart{height:178px;display:flex;align-items:stretch;gap:12px;padding:12px 8px 0;border-bottom:1px solid var(--line)}
+.hub-finance-month{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px}
+.hub-finance-bars{height:145px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:5px}
+.hub-finance-bar{width:min(20px,36%);min-height:2px;border-radius:6px 6px 2px 2px;transition:height .3s ease}
+.hub-finance-bar.income{background:linear-gradient(180deg,#d9bd87,#ad874d)}
+.hub-finance-bar.expense{background:linear-gradient(180deg,#b8c5d4,#71859e)}
+.hub-finance-month small{font-size:9px;color:#8290a3;text-transform:capitalize}
+.hub-chart-legend{display:flex;gap:18px;margin-top:12px;color:#77869a;font-size:10px}
+.hub-chart-legend span{display:flex;align-items:center;gap:6px}.hub-chart-legend i{display:inline-block;width:8px;height:8px;border-radius:3px;background:#b48d55}.hub-chart-legend span+span i{background:#8497ad}
+.hub-finance-totals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:13px;border-top:1px solid var(--line)}
+.hub-finance-totals>div{display:grid;gap:4px}.hub-finance-totals small{font-size:10px;color:#8793a4}.hub-finance-totals strong{font:800 16px Manrope;color:#1c2e47}
+.hub-priority-list,.hub-dashboard-project-list,.hub-pipeline-list{display:grid;gap:12px;margin-bottom:14px}
+.hub-priority-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #edf0f4}
+.hub-priority-item strong{display:block;font-size:11px;color:#293950}.hub-priority-item small{display:block;font-size:9px;color:#8a96a7;margin-top:3px}
+.hub-priority-mark{width:8px;height:8px;flex:none;margin-top:3px;border-radius:50%;background:#d6a05a}.hub-priority-mark.danger{background:#c76a65;box-shadow:0 0 0 4px #c76a6516}.hub-priority-mark.soon{background:#d5a34f;box-shadow:0 0 0 4px #d5a34f19}
+.hub-dashboard-project-row{display:grid;gap:8px}.hub-dashboard-project-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.hub-dashboard-project-top>div{min-width:0;display:grid;gap:3px}.hub-dashboard-project-top strong{font-size:11px;color:#2a3b52;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hub-dashboard-project-top small{font-size:9px;color:#8b97a7}.hub-dashboard-project-top>b{font:800 11px Manrope;color:#9a7842}
+.hub-dashboard-project-row .hub-project-progress-track{height:6px;margin:0;background:#edf1f5}.hub-dashboard-project-row .hub-project-progress-fill{background:linear-gradient(90deg,#c5a16b,#947143)}
+.hub-pipeline-row{display:grid;grid-template-columns:95px minmax(0,1fr) 22px;align-items:center;gap:9px;font-size:10px;color:#6f7e91}.hub-pipeline-row strong{text-align:right;color:#263a54}.hub-pipeline-track{height:7px;background:#edf1f5;border-radius:99px;overflow:hidden}.hub-pipeline-fill{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#d8bd8e,#a98550)}
+.hub-form-section{grid-column:1/-1;display:flex;flex-direction:column;gap:4px;padding:12px 14px 9px;margin:8px 0 0;border-bottom:1px solid #e9edf2}
+.hub-form-section strong{font:800 11px Manrope;color:#273a54;letter-spacing:.035em}.hub-form-section small{font-size:10px;color:#8b97a7}
+.hub-upload-field{border:1px dashed #c9d3df!important;background:#f8fafc!important;padding:13px!important;border-radius:13px!important}
+.hub-upload-hint{display:block;color:#8a96a6;font-size:10px;margin-top:8px}
+.hub-upload-filename{display:block;font-size:10px;color:#62748b;margin-top:6px;overflow-wrap:anywhere}
+.hub-project-form-preview{display:flex;align-items:center;gap:12px;margin-top:12px;padding:8px;background:#fff;border:1px solid #e6ebf1;border-radius:12px}
+.hub-project-form-preview img{width:88px;height:64px;object-fit:cover;border-radius:8px}
+.hub-project-form-preview span{font-size:10px;color:#6e7d91}
+@media(max-width:900px){.hub-dashboard-grid{grid-template-columns:1fr 1fr}.hub-dashboard-finance{grid-column:1/-1}}
+@media(max-width:620px){.hub-dashboard-grid{grid-template-columns:1fr}.hub-dashboard-finance{grid-column:auto}.hub-quick-actions{align-items:stretch}.hub-quick-copy{flex-basis:100%;margin-bottom:3px}.hub-quick-actions .hub-btn{flex:1;min-width:calc(50% - 6px)}.hub-finance-chart{gap:7px}.hub-finance-totals strong{font-size:14px}}
