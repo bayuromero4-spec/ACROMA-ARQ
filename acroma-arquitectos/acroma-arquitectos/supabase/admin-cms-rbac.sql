@@ -413,13 +413,14 @@ $$;
 revoke all on function public.get_my_permissions() from public, anon;
 grant execute on function public.get_my_permissions() to authenticated;
 
--- Un editor puede guardar borradores, pero solo quien tenga cms.publish puede publicar.
-create or replace function private.guard_cms_publish()
+-- Solo usuarios con cms.publish pueden pasar contenido a publicado.
+-- Se aplica tanto al CMS como a los editores existentes de proyectos/servicios/noticias.
+create or replace function private.guard_content_publish()
 returns trigger
 language plpgsql
 security invoker
 set search_path = pg_catalog, public, private
-as $$
+as $
 begin
   if new.status = 'published'
      and (tg_op = 'INSERT' or old.status is distinct from new.status)
@@ -429,9 +430,30 @@ begin
   end if;
   return new;
 end;
-$$;
-revoke all on function private.guard_cms_publish() from public, anon, authenticated;
+$;
+revoke all on function private.guard_content_publish() from public, anon, authenticated;
+
 drop trigger if exists cms_pages_guard_publish on public.cms_pages;
 create trigger cms_pages_guard_publish
 before insert or update of status on public.cms_pages
-for each row execute function private.guard_cms_publish();
+for each row execute function private.guard_content_publish();
+
+drop trigger if exists projects_guard_publish on public.projects;
+create trigger projects_guard_publish
+before insert or update of status on public.projects
+for each row execute function private.guard_content_publish();
+
+drop trigger if exists services_guard_publish on public.services;
+create trigger services_guard_publish
+before insert or update of status on public.services
+for each row execute function private.guard_content_publish();
+
+drop trigger if exists posts_guard_publish on public.posts;
+create trigger posts_guard_publish
+before insert or update of status on public.posts
+for each row execute function private.guard_content_publish();
+
+drop trigger if exists testimonials_guard_publish on public.testimonials;
+create trigger testimonials_guard_publish
+before insert or update of status on public.testimonials
+for each row execute function private.guard_content_publish();
