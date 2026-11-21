@@ -480,7 +480,7 @@ async function siteImagesView() {
 
 async function publishView() {
   const { data } = await sb.from('site_settings').select('value').eq('key', 'deploy_hook').maybeSingle();
-  const input = h('input', { type: 'url', placeholder: 'https://api.netlify.com/build_hooks/…', value: data?.value ?? '' }) as HTMLInputElement;
+  const input = h('input', { type: 'url', placeholder: 'https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…', value: data?.value ?? '' }) as HTMLInputElement;
   const saveHook = h('button', { class: 'btn btn--ghost', type: 'button', onclick: async () => {
     const r = await sb.from('site_settings').upsert({ key: 'deploy_hook', value: input.value.trim() });
     toast(r.error ? errMsg(r.error) : 'Enlace guardado ✓', !!r.error);
@@ -495,16 +495,24 @@ async function publishView() {
     go.disabled = false; go.textContent = 'Publicar cambios ahora';
   };
   main().replaceChildren(
-    h('div', { class: 'top' }, h('div', {}, h('h2', {}, 'Publicar cambios'), h('p', { class: 'hint' }, 'La web pública es estática: los cambios guardados aquí aparecen cuando la reconstruyes.'))),
+    h('div', { class: 'top' }, h('div', {}, h('h2', {}, 'Publicar cambios'), h('p', { class: 'hint' }, 'La web pública se genera en Cloudflare Pages: los cambios guardados aparecen después de ejecutar el Deploy Hook.'))),
     h('div', { class: 'card form' },
       h('p', {}, 'Después de editar proyectos, servicios, testimonios o datos del negocio, pulsa el botón. La web se actualiza en 1–2 minutos.'),
       go,
-      h('div', { class: 'field' }, h('label', {}, 'Enlace de publicación (Deploy hook)'), input, h('p', { class: 'help' }, 'Se obtiene una sola vez en el hosting (Netlify → Site configuration → Build hooks). Ver README.')),
+      h('div', { class: 'field' }, h('label', {}, 'Enlace de publicación (Deploy hook)'), input, h('p', { class: 'help' }, 'Se obtiene en Cloudflare Pages → Settings → Builds & deployments → Deploy hooks. Ver README.')),
       saveHook));
 }
 
 /* ---------- shell ---------- */
-const sections: [string, string][] = [['projects', 'Proyectos'], ['services', 'Servicios'], ['posts', 'Novedades y campañas'], ['testimonials', 'Testimonios'], ['siteimages', 'Imágenes del sitio'], ['business', 'Datos del negocio'], ['leads', 'Consultas'], ['publish', 'Publicar cambios']];
+let userPermissions = new Set<string>();
+let isRootAdmin = false;
+const sectionPermission: Record<string, string> = {
+  projects: 'projects.manage', services: 'services.manage', posts: 'posts.manage',
+  testimonials: 'testimonials.manage', siteimages: 'site_images.manage',
+  business: 'business.manage', leads: 'leads.read', publish: 'cms.publish',
+};
+const allSections: [string, string][] = [['projects', 'Proyectos'], ['services', 'Servicios'], ['posts', 'Novedades y campañas'], ['testimonials', 'Testimonios'], ['siteimages', 'Imágenes del sitio'], ['business', 'Datos del negocio'], ['leads', 'Consultas'], ['publish', 'Publicar cambios']];
+const getSections = () => allSections.filter(([key]) => isRootAdmin || userPermissions.has(sectionPermission[key]));
 function show(key: string) {
   current = key;
   refreshBadge();
@@ -521,10 +529,12 @@ async function refreshBadge() {
   if (b) { b.textContent = String(count ?? 0); (b as HTMLElement).style.display = count ? '' : 'none'; }
 }
 function shell(email: string) {
+  const allowedSections = getSections();
+  if (!allowedSections.some(([key]) => key === current)) current = allowedSections[0]?.[0] ?? 'projects';
   app.replaceChildren(h('div', { class: 'shell' },
     h('aside', { class: 'side' },
       h('div', { class: 'side__brand' }, 'ACR', h('em', {}, 'OMA'), ' · Panel'),
-      ...sections.map(([k, l]) => h('button', { class: 'nav', 'data-key': k, onclick: () => show(k) }, l, k === 'leads' ? h('span', { class: 'badge', 'data-leads-badge': '', style: 'display:none' }, '0') : null)),
+      ...getSections().map(([k, l]) => h('button', { class: 'nav', 'data-key': k, onclick: () => show(k) }, l, k === 'leads' ? h('span', { class: 'badge', 'data-leads-badge': '', style: 'display:none' }, '0') : null)),
       h('div', { class: 'side__foot' }, h('span', {}, email),
         h('a', { href: '/', target: '_blank', style: 'color:#e4c37d' }, 'Ver la web ↗'),
         h('button', { class: 'btn btn--ghost btn--sm', style: 'color:#fff;border-color:rgba(255,255,255,.3)', onclick: async () => { await sb.auth.signOut(); loginView(); } }, 'Cerrar sesión'))),
@@ -545,7 +555,7 @@ function loginView(message = '') {
     if (error) { err.textContent = 'Correo o contraseña incorrectos.'; return; }
     start();
   } },
-    h('h1', {}, 'Panel ACROMA'), h('p', {}, 'Acceso solo para administradores.'),
+    h('h1', {}, 'Panel ACROMA'), h('p', {}, 'Acceso privado para el equipo autorizado.'),
     h('div', { class: 'field' }, h('label', {}, 'Correo'), email), h('div', { class: 'field' }, h('label', {}, 'Contraseña'), pass),
     err, btn,
     h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: async () => {
@@ -570,10 +580,14 @@ function recoveryView() {
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return loginView();
-  const { data: ok, error } = await sb.rpc('is_admin');
-  if (error || ok !== true) {
+  const { data: adminCheck } = await sb.rpc('is_admin');
+  isRootAdmin = adminCheck === true;
+  const { data: permissionRows, error: permissionError } = await sb.rpc('get_my_permissions');
+  userPermissions = new Set((permissionRows ?? []).map((row: Row) => row.permission_code));
+  const { data: dashboardAllowed, error: accessError } = await sb.rpc('has_permission', { permission_code: 'dashboard.read' });
+  if (!isRootAdmin && (permissionError || accessError || dashboardAllowed !== true)) {
     await sb.auth.signOut();
-    return loginView('Esta cuenta no tiene permiso de administrador.');
+    return loginView('Esta cuenta no tiene permisos para acceder al panel.');
   }
   shell(session.user.email ?? '');
 }
