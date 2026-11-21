@@ -246,3 +246,15 @@ revoke all on
  public.hub_whatsapp_messages from anon;
 
 -- This deployment intentionally does not add public write endpoints or store Meta secrets in the browser.
+
+
+-- Allow authorized Business Hub staff to review and update public website inquiries.
+-- This keeps the public insert-only policy intact and does not expose leads to anon users.
+drop policy if exists leads_hub_read on public.leads;
+create policy leads_hub_read on public.leads for select to authenticated
+  using (private.has_permission('hub.clients.read'));
+drop policy if exists leads_hub_update on public.leads;
+create policy leads_hub_update on public.leads for update to authenticated
+  using (private.has_permission('hub.clients.manage'))
+  with check (private.has_permission('hub.clients.manage'));
+grant select, update on public.leads to authenticated;
