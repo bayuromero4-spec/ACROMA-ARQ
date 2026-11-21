@@ -1,10 +1,11 @@
 ---
 import { Image } from 'astro:assets';
-import { getBusiness, getSiteImages } from '../lib/content';
+import { getBusiness, getSiteImages, getPageCopy } from '../lib/content';
 import heroLocal from '../assets/hero-maqueta.jpg';
 
 const business = await getBusiness();
 const override = (await getSiteImages()).hero;
+const copy = await getPageCopy('inicio', 'hero');
 const alt = override?.alt || 'Maqueta arquitectónica de una vivienda contemporánea con fachada acristalada';
 ---
 
@@ -39,15 +40,14 @@ const alt = override?.alt || 'Maqueta arquitectónica de una vivienda contempor�
 
   <div class="container hero__inner">
     <div class="hero__copy">
-      <p class="hero__tag rise glass glass--dark glass--pill" style="--d: 150ms">Arquitectura · Construcción · Reformas</p>
-      <h1 id="hero-title" class="rise" style="--d: 300ms">Arquitectura pensada para <em>vivir mejor.</em></h1>
+      <p class="hero__tag rise glass glass--dark glass--pill" style="--d: 150ms">{copy.tag || 'Arquitectura · Construcción · Reformas'}</p>
+      <h1 id="hero-title" class="rise" style="--d: 300ms">{copy.title || 'Arquitectura pensada para'} <em>{copy.titleAccent || 'vivir mejor.'}</em></h1>
       <p class="hero__lead rise" style="--d: 460ms">
-        Estudio de arquitectura y construcción en Cajamarca. Del primer boceto a la entrega de llaves, con planos completos,
-        presupuesto claro y supervisión directa del equipo.
+        {copy.lead || 'Estudio de arquitectura y construcción en Cajamarca. Del primer boceto a la entrega de llaves, con planos completos, presupuesto claro y supervisión directa del equipo.'}
       </p>
       <div class="hero__actions rise" style="--d: 600ms">
-        <a class="btn btn--gold" href="/contacto#formulario">Solicitar cotización</a>
-        <a class="btn btn--outline" href="/proyectos">Ver proyectos</a>
+        <a class="btn btn--gold" href="/contacto#formulario">{copy.primaryCta || 'Solicitar cotización'}</a>
+        <a class="btn btn--outline" href="/proyectos">{copy.secondaryCta || 'Ver proyectos'}</a>
       </div>
     </div>
 
@@ -59,7 +59,7 @@ const alt = override?.alt || 'Maqueta arquitectónica de una vivienda contempor�
           <Image src={heroLocal} alt={alt} widths={[480, 720]} sizes="(min-width: 980px) 480px, 90vw" loading="eager" />
         )
       }
-      <figcaption class="glass glass--dark glass--pill">Diseño · Planos · Obra</figcaption>
+      <figcaption class="glass glass--dark glass--pill">{copy.imageCaption || 'Diseño · Planos · Obra'}</figcaption>
     </figure>
 
     <dl class="hero__stats">

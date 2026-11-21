@@ -42,6 +42,7 @@ styles.textContent = `
   @media(max-width:1000px){.x-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.x-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:650px){.x-grid{grid-template-columns:1fr 1fr}.x-form{grid-template-columns:1fr}.x-shortcuts{grid-template-columns:1fr}.x-preview__frame{height:560px}}
 `;
+styles.textContent += "\n  .x-copy-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}\n  .x-copy-field{display:grid;gap:7px;align-content:start}\n  .x-copy-field label,.x-copy-label{font-size:.85rem;font-weight:750;color:#24344d}\n  .x-input{width:100%;min-width:0;padding:12px 13px;border:1px solid #dfe4eb;border-radius:10px;background:#fff;color:#17263d;font:inherit}\n  .x-input:focus{outline:2px solid rgba(197,161,94,.55);outline-offset:1px}\n  .x-copy-toolbar{display:grid;gap:8px;max-width:420px}\n  .x-copy-toolbar select{width:100%}\n  .x-copy-field textarea{min-height:100px;resize:vertical}\n  @media(max-width:650px){.x-copy-fields{grid-template-columns:1fr}}\n";
 document.head.append(styles);
 
 const node = (tag: string, cls = '', text = '') => {
@@ -126,6 +127,133 @@ async function dashboardView() {
   host.replaceChildren(view);
 }
 
+
+
+type CopyField = { key:string; label:string; value:string; multiline?:boolean; help?:string };
+const editablePages = [
+  {slug:'inicio',title:'Inicio · Portada',section:'hero',fields:[
+    {key:'tag',label:'Etiqueta superior',value:'Arquitectura · Construcción · Reformas'},
+    {key:'title',label:'Título principal (línea superior)',value:'Arquitectura pensada para'},
+    {key:'titleAccent',label:'Título destacado (dorado)',value:'vivir mejor.'},
+    {key:'lead',label:'Descripción principal',value:'Estudio de arquitectura y construcción en Cajamarca. Del primer boceto a la entrega de llaves, con planos completos, presupuesto claro y supervisión directa del equipo.',multiline:true},
+    {key:'primaryCta',label:'Botón principal',value:'Solicitar cotización'},
+    {key:'secondaryCta',label:'Botón secundario',value:'Ver proyectos'},
+    {key:'imageCaption',label:'Texto sobre la imagen',value:'Diseño · Planos · Obra'}
+  ]},
+  {slug:'servicios',title:'Servicios · Cabecera',section:'hero',fields:[
+    {key:'eyebrow',label:'Etiqueta',value:'Servicios'},
+    {key:'title',label:'Título',value:'Diseño, planos y obra en un solo equipo.'},
+    {key:'lead',label:'Descripción',value:'Acompañamos tu proyecto desde la primera idea hasta la entrega: diseño arquitectónico, planos de todas las especialidades, reformas, construcción y terminaciones.',multiline:true}
+  ]},
+  {slug:'nosotros',title:'Nosotros · Cabecera',section:'hero',fields:[
+    {key:'eyebrow',label:'Etiqueta',value:'Nosotros'},
+    {key:'title',label:'Título',value:'Arquitectura clara para decisiones importantes.'},
+    {key:'lead',label:'Descripción',value:'Somos un estudio de arquitectura y construcción con base en Cajamarca. Trabajamos de cerca con cada cliente para que entienda, decida y construya con confianza.',multiline:true}
+  ]},
+  {slug:'novedades',title:'Novedades · Cabecera',section:'hero',fields:[
+    {key:'eyebrow',label:'Etiqueta',value:'Novedades'},
+    {key:'title',label:'Título',value:'Campañas, avances y noticias del estudio.'},
+    {key:'lead',label:'Descripción',value:'Aquí publicamos las promociones del momento, obras en marcha y novedades de ACROMA.',multiline:true}
+  ]},
+  {slug:'contacto',title:'Contacto · Cabecera',section:'hero',fields:[
+    {key:'eyebrow',label:'Etiqueta',value:'Contacto'},
+    {key:'title',label:'Título',value:'Cuéntanos qué quieres construir o mejorar.'},
+    {key:'lead',label:'Descripción',value:'No necesitas tener todo resuelto. Escríbenos con lo que tengas y te orientamos con honestidad sobre el siguiente paso.',multiline:true}
+  ]}
+] as const;
+
+async function pageCopyEditorView(initialSlug='inicio') {
+  const host=main(); if(!host)return;
+  host.replaceChildren(node('p','boot','Preparando editor de textos…'));
+  const view=node('section','x-view');
+  const heading=node('div','x-heading');
+  const title=node('div');
+  title.append(node('h2','','Editor de textos'),node('p','x-muted','Edita los textos existentes de la web sin tocar el diseño ni el código. Guarda un borrador o publica cuando esté listo.'));
+  heading.append(title,button('Volver al editor visual',visualEditorView));
+  const panel=node('div','x-card');
+  const pageSelect=node('select','x-input') as HTMLSelectElement;
+  for(const page of editablePages){const o=node('option','',page.title) as HTMLOptionElement;o.value=page.slug;pageSelect.append(o);}
+  pageSelect.value=initialSlug;
+  const state=node('p','x-muted','Los cambios guardados como borrador no se muestran en la web hasta publicarlos.');
+  const fieldsWrap=node('div','x-copy-fields');
+  const actions=node('div','x-actions');
+  const save=button('Guardar borrador',()=>savePage('draft'),true) as HTMLButtonElement;
+  const publish=button('Publicar textos',()=>savePage('published')) as HTMLButtonElement;
+  actions.append(save,publish);
+  let activePage=editablePages.find(p=>p.slug===initialSlug)??editablePages[0];
+  let currentPageId='';
+  let currentContent:Row={};
+  let inputs:Record<string,HTMLInputElement|HTMLTextAreaElement>={};
+  const seedAndLoad=async()=>{
+    activePage=editablePages.find(p=>p.slug===pageSelect.value)??editablePages[0];
+    state.textContent='Cargando textos…';fieldsWrap.replaceChildren();inputs={};
+    let {data:page,error}=await sb.from('cms_pages').select('*').eq('slug',activePage.slug).maybeSingle();
+    if(error){state.textContent='No se pudo consultar el CMS: '+error.message;return;}
+    if(!page){
+      const created=await sb.from('cms_pages').insert({slug:activePage.slug,title:activePage.title,status:'published'}).select().single();
+      if(created.error){state.textContent='No se pudo inicializar esta página: '+created.error.message;return;}
+      page=created.data;
+    }
+    currentPageId=page.id;
+    let {data:section,error:sectionError}=await sb.from('cms_sections').select('*').eq('page_id',page.id).eq('section_key',activePage.section).maybeSingle();
+    if(sectionError){state.textContent='No se pudo leer el contenido: '+sectionError.message;return;}
+    if(!section){
+      const defaults=Object.fromEntries(activePage.fields.map(f=>[f.key,f.value]));
+      const created=await sb.from('cms_sections').insert({page_id:page.id,section_key:activePage.section,label:activePage.title,component:'page-hero',sort_order:0,is_visible:true,content:defaults}).select().single();
+      if(created.error){state.textContent='No se pudo inicializar el bloque: '+created.error.message;return;}
+      section=created.data;
+    }
+    currentContent=section.content??{};
+    for(const f of activePage.fields){
+      const wrap=node('div','x-copy-field');
+      const label=node('label','',f.label);
+      const control=(f.multiline?node('textarea','x-input'):node('input','x-input')) as HTMLInputElement|HTMLTextAreaElement;
+      if(control instanceof HTMLTextAreaElement)control.rows=4;
+      control.value=currentContent[f.key]??f.value;
+      control.setAttribute('aria-label',f.label);
+      inputs[f.key]=control;
+      wrap.append(label,control);
+      if(f.help)wrap.append(node('small','x-muted',f.help));
+      fieldsWrap.append(wrap);
+    }
+    state.textContent=page.status==='published'?'Contenido publicado. Puedes editarlo y guardar un borrador.':'Hay cambios guardados como borrador, todavía no visibles en la web.';
+    panel.dataset.pageStatus=page.status;
+  };
+  const savePage=async(status:'draft'|'published')=>{
+    if(!currentPageId)return;
+    save.disabled=true;publish.disabled=true;
+    state.textContent=status==='published'?'Publicando textos…':'Guardando borrador…';
+    const content:Row={};
+    for(const [key,input] of Object.entries(inputs))content[key]=input.value.trim();
+    const {data:{user}}=await sb.auth.getUser();
+    const sectionResult=await sb.from('cms_sections').upsert({page_id:currentPageId,section_key:activePage.section,label:activePage.title,component:'page-hero',sort_order:0,is_visible:true,content,updated_by:user?.id??null},{onConflict:'page_id,section_key'}).select().single();
+    if(sectionResult.error){state.textContent='No se pudo guardar: '+sectionResult.error.message;save.disabled=false;publish.disabled=false;return;}
+    const {data:latest}=await sb.from('content_revisions').select('version').eq('page_id',currentPageId).order('version',{ascending:false}).limit(1).maybeSingle();
+    const version=(latest?.version??0)+1;
+    await sb.from('content_revisions').insert({page_id:currentPageId,version,snapshot:{[activePage.section]:content},note:status==='published'?'Publicación desde Editor visual':'Borrador desde Editor visual',created_by:user?.id??null,published_at:status==='published'?new Date().toISOString():null});
+    const pageResult=await sb.from('cms_pages').update({status,updated_by:user?.id??null,published_at:status==='published'?new Date().toISOString():null}).eq('id',currentPageId);
+    if(pageResult.error){state.textContent='El texto se guardó, pero no se pudo actualizar el estado: '+pageResult.error.message;save.disabled=false;publish.disabled=false;return;}
+    if(status==='published'){
+      const {data:hook}=await sb.from('site_settings').select('value').eq('key','deploy_hook').maybeSingle();
+      if(hook?.value){
+        try{const response=await fetch(hook.value,{method:'POST'});if(!response.ok)throw new Error('El servidor de publicación respondió '+response.status);state.textContent='Textos publicados. Se inició la actualización de la web.';}
+        catch(e){state.textContent='Textos publicados en Supabase, pero no se pudo iniciar el despliegue. Revisa Publicar cambios.';}
+      }else state.textContent='Textos publicados en Supabase. Configura el enlace de despliegue en «Publicar cambios» para actualizar la web automáticamente.';
+      toast('Textos publicados. La web se actualizará al terminar el despliegue.');
+    }else{state.textContent='Borrador guardado. La web pública conserva la versión publicada.';toast('Borrador guardado.');}
+    save.disabled=false;publish.disabled=false;
+    panel.dataset.pageStatus=status;
+  };
+  const pageBar=node('div','x-copy-toolbar');
+  const pageLabel=node('label','x-copy-label','Página que deseas editar');
+  pageBar.append(pageLabel,pageSelect);
+  pageSelect.addEventListener('change',()=>void seedAndLoad());
+  panel.append(pageBar,state,fieldsWrap,actions);
+  view.append(heading,panel);
+  host.replaceChildren(view);
+  await seedAndLoad();
+}
+
 async function visualEditorView() {
   const host=main(); if(!host) return;
   const view=node('section','x-view');
@@ -137,15 +265,18 @@ async function visualEditorView() {
   const pages:[string,string][]=[['/','Inicio'],['/servicios','Servicios'],['/proyectos','Proyectos'],['/nosotros','Nosotros'],['/novedades','Novedades'],['/contacto','Contacto']];
   for(const [url,label] of pages){const o=node('option','',label) as HTMLOptionElement;o.value=url;select.append(o);}
   const refresh=button('Actualizar vista',()=>{frame.src=select.value;});
+  const pageSlugForPath=(path:string)=>({'/':'inicio','/servicios':'servicios','/nosotros':'nosotros','/novedades':'novedades','/contacto':'contacto'} as Record<string,string>)[path];
+  const editCopy=button('Editar textos de la página',()=>{const slug=pageSlugForPath(select.value);if(slug)void pageCopyEditorView(slug);else toast('La edición de textos de esta página todavía no está habilitada.',true);},true);
   const open=button('Abrir en otra pestaña',()=>window.open(select.value,'_blank','noopener'));
-  controls.append(select,refresh,open);
+  controls.append(select,refresh,open,editCopy);
   const preview=node('div','x-preview');
   const frame=node('iframe','x-preview__frame') as HTMLIFrameElement;
   frame.title='Vista previa de la página pública ACROMA'; frame.src='/';
   const sizes:[string,string][]=[['Escritorio','100%'],['Tablet','768px'],['Móvil','390px']];
   const sizeControls=node('div','x-actions');
   for(const [label,width] of sizes) sizeControls.append(button(label,()=>{frame.style.maxWidth=width;}));
-  select.addEventListener('change',()=>{frame.src=select.value;});
+  select.addEventListener('change',()=>{frame.src=select.value;editCopy.disabled=!pageSlugForPath(select.value);});
+  editCopy.disabled=!pageSlugForPath(select.value);
   preview.append(sizeControls,document.createElement('br'),frame);
   const shortcuts=node('div','x-card');
   shortcuts.append(node('h3','','Editar contenido de esta página'),node('p','x-muted','Selecciona un módulo para abrir su editor. Los cambios guardados se reflejarán en la vista pública al publicar.'));

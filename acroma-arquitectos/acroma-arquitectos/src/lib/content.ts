@@ -223,3 +223,13 @@ export async function getActiveCampaign(): Promise<Post | undefined> {
 export async function getSiteImages(): Promise<SiteImages> {
   return (await content()).siteImages;
 }
+
+
+/** Textos editables del CMS. Solo se exponen secciones pertenecientes a páginas publicadas. */
+export async function getPageCopy(pageSlug: string, sectionKey: string): Promise<Record<string, string>> {
+  const sb = getServerClient();
+  if (!sb) return {};
+  const { data, error } = await sb.from('cms_sections').select('content,cms_pages!inner(status,slug)').eq('cms_pages.slug', pageSlug).eq('cms_pages.status', 'published').eq('section_key', sectionKey).eq('is_visible', true).maybeSingle();
+  if (error || !data || !data.content || typeof data.content !== 'object') return {};
+  return data.content as Record<string, string>;
+}

@@ -8,8 +8,9 @@ interface Props {
   title: string;
   lead?: string;
   breadcrumbs?: Crumb[];
+  copy?: Record<string, string>;
 }
-const { eyebrow, title, lead, breadcrumbs = [] } = Astro.props;
+const { eyebrow, title, lead, breadcrumbs = [], copy = {} } = Astro.props;
 ---
 
 <header class="page-hero aurora aurora--dark">
@@ -26,9 +27,9 @@ const { eyebrow, title, lead, breadcrumbs = [] } = Astro.props;
         </nav>
       )
     }
-    <p class="eyebrow eyebrow--light rise" style="--d: 100ms">{eyebrow}</p>
-    <h1 class="rise" style="--d: 200ms">{title}</h1>
-    {lead && <p class="page-hero__lead rise" style="--d: 340ms">{lead}</p>}
+    <p class="eyebrow eyebrow--light rise" style="--d: 100ms">{copy.eyebrow || eyebrow}</p>
+    <h1 class="rise" style="--d: 200ms">{copy.title || title}</h1>
+    {(copy.lead || lead) && <p class="page-hero__lead rise" style="--d: 340ms">{copy.lead || lead}</p>}
   </div>
 </header>
 

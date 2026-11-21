@@ -7,11 +7,12 @@ import CtaBand from '../components/CtaBand.astro';
 import teamPhoto from '../assets/equipo-tecnico-acroma.png';
 import { team, values } from '../data/site';
 import { breadcrumbSchema } from '../lib/seo';
-import { getBusiness, getSiteImages } from '../lib/content';
+import { getBusiness, getSiteImages , getPageCopy } from '../lib/content';
 
 const business = await getBusiness();
 const teamOverride = (await getSiteImages()).nosotros;
 const site = Astro.site!.toString().replace(/\/$/, '');
+const pageCopy = await getPageCopy('nosotros', 'hero');
 ---
 
 <BaseLayout
@@ -22,6 +23,7 @@ const site = Astro.site!.toString().replace(/\/$/, '');
   schema={breadcrumbSchema(site, [{ name: 'Inicio', href: '/' }, { name: 'Nosotros', href: '/nosotros' }])}
 >
   <PageHero
+    copy={pageCopy}
     eyebrow="Nosotros"
     title="Arquitectura clara para decisiones importantes."
     lead="Somos un estudio de arquitectura y construcción con base en Cajamarca. Trabajamos de cerca con cada cliente para que entienda, decida y construya con confianza."
