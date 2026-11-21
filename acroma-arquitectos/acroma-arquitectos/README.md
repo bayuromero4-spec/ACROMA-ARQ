@@ -46,9 +46,14 @@ Proyecto: `https://qfrfqnjvsdujumyimzap.supabase.co`. Se hace **una sola vez**:
    correo `andersoncristianromeromalca@gmail.com`, una contraseña segura y marca **Auto Confirm User**.
    (Solo los correos de la tabla `admins` entran al panel; para añadir otro, inserta su correo en esa tabla y crea su usuario.)
 3. **Cerrar el registro público.** *Authentication → Sign In / Providers → Email*: desactiva *Allow new users to sign up*.
-4. **Claves.** *Project Settings → API*: copia la clave **anon / publishable** (nunca la `service_role`).
-   Copia `.env.example` a `.env` y pégala en `PUBLIC_SUPABASE_ANON_KEY`. En Cloudflare Pages, cárgala en Settings → Environment variables.
-5. `npm run build`. Si faltan las claves, o Supabase no responde, la web usa los datos de `src/data` y no se rompe.
+4. **Claves para el sitio y el panel.** En Supabase → *Project Settings → API Keys* copia la URL del proyecto y la clave pública **Publishable** (o la clave heredada `anon`). Nunca uses `service_role` ni una `secret` key en el navegador.
+   - En desarrollo local, crea `.env` en la raíz del proyecto (junto a `package.json`) con estas dos variables:
+     ```dotenv
+     PUBLIC_SUPABASE_URL=https://qfrfqnjvsdujumyimzap.supabase.co
+     PUBLIC_SUPABASE_ANON_KEY=pega_aqui_tu_clave_publishable_o_anon
+     ```
+   - En Cloudflare Pages → proyecto `acroma-arq` → *Settings → Variables and Secrets*, añade ambas variables para **Production** y también para **Preview** si vas a probar ramas. Guarda y vuelve a desplegar; Astro incorpora las variables `PUBLIC_*` durante el build, por lo que no basta con recargar el navegador.
+5. Ejecuta `npm run build`. Si faltan las variables, el sitio público usa el contenido local, pero el panel `/admin` no puede iniciar sesión ni conectar con Supabase.
 
 ### Publicar en Cloudflare Pages
 
