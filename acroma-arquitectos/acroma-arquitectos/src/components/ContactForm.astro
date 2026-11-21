@@ -1,5 +1,5 @@
 ---
-import { getBusiness } from '../lib/content';
+import { getBusiness, getServices } from '../lib/content';
 import { SUPABASE_URL, SUPABASE_KEY, hasSupabase } from '../lib/supabase';
 
 interface Props {
@@ -7,19 +7,8 @@ interface Props {
   defaultType?: string;
 }
 const { defaultType = '' } = Astro.props;
-const business = await getBusiness();
-
-const projectTypes = [
-  'Diseño arquitectónico',
-  'Reforma integral',
-  'Remodelación de cocina',
-  'Remodelación de baño',
-  'Ampliación',
-  'Construcción',
-  'Terminaciones',
-  'Planos y especialidades',
-  'Otro',
-];
+const [business, activeServices] = await Promise.all([getBusiness(), getServices()]);
+const projectTypes = activeServices.map((service) => service.title);
 ---
 
 <!--
@@ -59,6 +48,7 @@ const projectTypes = [
       <select id="cf-tipo" name="tipo" required>
         <option value="" disabled selected={!defaultType}>Selecciona una opción</option>
         {projectTypes.map((t) => <option value={t} selected={t === defaultType}>{t}</option>)}
+        <option value="Otro">Otro / Consulta personalizada</option>
       </select>
     </div>
   </div>
@@ -272,14 +262,15 @@ const projectTypes = [
           source: location.pathname,
         }),
       });
-      if (!res.ok) throw new Error(String(res.status));
+      if (!res.ok) { const detail = await res.text().catch(() => ''); throw new Error(`HTTP ${res.status}: ${detail.slice(0, 240)}`); }
       form.reset();
       show(
         '<strong>¡Solicitud registrada!</strong> Tus datos ya están en ACROMA. Para iniciar la conversación, <a target="_blank" rel="noopener noreferrer">abrir WhatsApp y enviar tu consulta</a>. Recuerda pulsar Enviar en WhatsApp.',
         wa,
       );
-    } catch {
-      show(fallback, wa);
+    } catch (error) {
+      console.error('[ACROMA] No se pudo registrar la solicitud:', error);
+      show('No pudimos registrar tu solicitud automáticamente. Puedes continuar por WhatsApp y enviar tus datos. <a target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>', wa);
     } finally {
       if (submit) submit.disabled = false;
     }
