@@ -512,7 +512,7 @@ const sectionPermission: Record<string, string> = {
   business: 'business.manage', leads: 'leads.read', publish: 'cms.publish',
 };
 const allSections: [string, string][] = [['projects', 'Proyectos'], ['services', 'Servicios'], ['posts', 'Novedades y campañas'], ['testimonials', 'Testimonios'], ['siteimages', 'Imágenes del sitio'], ['business', 'Datos del negocio'], ['leads', 'Consultas'], ['publish', 'Publicar cambios']];
-const sections = allSections.filter(([key]) => isRootAdmin || userPermissions.has(sectionPermission[key]));
+const getSections = () => allSections.filter(([key]) => isRootAdmin || userPermissions.has(sectionPermission[key]));
 function show(key: string) {
   current = key;
   refreshBadge();
@@ -532,7 +532,7 @@ function shell(email: string) {
   app.replaceChildren(h('div', { class: 'shell' },
     h('aside', { class: 'side' },
       h('div', { class: 'side__brand' }, 'ACR', h('em', {}, 'OMA'), ' · Panel'),
-      ...sections.map(([k, l]) => h('button', { class: 'nav', 'data-key': k, onclick: () => show(k) }, l, k === 'leads' ? h('span', { class: 'badge', 'data-leads-badge': '', style: 'display:none' }, '0') : null)),
+      ...getSections().map(([k, l]) => h('button', { class: 'nav', 'data-key': k, onclick: () => show(k) }, l, k === 'leads' ? h('span', { class: 'badge', 'data-leads-badge': '', style: 'display:none' }, '0') : null)),
       h('div', { class: 'side__foot' }, h('span', {}, email),
         h('a', { href: '/', target: '_blank', style: 'color:#e4c37d' }, 'Ver la web ↗'),
         h('button', { class: 'btn btn--ghost btn--sm', style: 'color:#fff;border-color:rgba(255,255,255,.3)', onclick: async () => { await sb.auth.signOut(); loginView(); } }, 'Cerrar sesión'))),
