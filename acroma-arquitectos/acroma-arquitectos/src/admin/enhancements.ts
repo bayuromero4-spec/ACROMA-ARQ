@@ -150,7 +150,7 @@ async function visualEditorView() {
   const shortcuts=node('div','x-card');
   shortcuts.append(node('h3','','Editar contenido de esta página'),node('p','x-muted','Selecciona un módulo para abrir su editor. Los cambios guardados se reflejarán en la vista pública al publicar.'));
   const shortcutGrid=node('div','x-shortcuts');
-  const modules:[string,string,string][]=[
+  const modules:[string,string,string,string][]=[
     ['business','Datos generales','Nombre, textos de marca y contacto','business.manage'],
     ['siteimages','Imágenes del sitio','Portada y fotografía de equipo','site_images.manage'],
     ['services','Servicios','Textos, características e imágenes','services.manage'],
@@ -263,6 +263,11 @@ async function installExtensions() {
   }
   installed=true;
   installing=false;
+  const dashboardButton=document.querySelector<HTMLButtonElement>('button.nav[data-ext-key="dashboard"]');
+  if(dashboardButton){
+    document.querySelectorAll<HTMLButtonElement>('button.nav').forEach((item)=>item.setAttribute('aria-current',String(item===dashboardButton)));
+    void dashboardView();
+  }
 }
 const observer=new MutationObserver(()=>{void installExtensions();});
 observer.observe(document.body,{childList:true,subtree:true});
