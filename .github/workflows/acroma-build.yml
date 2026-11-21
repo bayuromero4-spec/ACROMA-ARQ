@@ -1,0 +1,32 @@
+name: ACROMA build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - main
+      - feature/admin-cms-v1
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: acroma-arquitectos/acroma-arquitectos
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: acroma-arquitectos/acroma-arquitectos/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build Astro site
+        run: npm run build
