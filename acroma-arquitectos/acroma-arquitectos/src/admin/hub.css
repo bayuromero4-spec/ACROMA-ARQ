@@ -143,3 +143,21 @@
 @media(max-width:1100px){.hub-project-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.hub-project-board{grid-template-columns:minmax(0,1fr);gap:18px;margin-top:14px;padding:0 0 20px;overflow:visible}.hub-project-column{gap:10px}.hub-project-stage-head{padding:4px 2px 9px}.hub-project-stage-title h3{font-size:14px}.hub-project-card-premium{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:stretch;border-radius:15px}.hub-project-cover{height:100%;min-height:224px;grid-row:1;grid-column:1}.hub-project-cover-top{top:8px;left:7px;right:7px;align-items:flex-start;flex-direction:column}.hub-project-cover-top .hub-status,.hub-project-cover-top .hub-badge{font-size:8px;padding:5px 7px}.hub-project-code{font-size:7px;letter-spacing:.06em}.hub-cover-monogram{font-size:34px;left:10px;bottom:10px}.hub-cover-caption{display:none}.hub-project-card-body{grid-column:2;grid-row:1;padding:12px 11px;gap:8px}.hub-project-name{font-size:15px;min-height:0;line-height:1.2}.hub-project-category{font-size:9px}.hub-project-type{font-size:7px}.hub-project-client-row{padding:7px 0;gap:7px}.hub-project-client-avatar{width:27px;height:27px;font-size:9px}.hub-project-client-info small,.hub-project-due small{font-size:7px}.hub-project-client-info strong{font-size:9px}.hub-project-location{font-size:9px}.hub-project-progress-head span{font-size:7px}.hub-project-progress-head strong{font-size:14px}.hub-project-progress-track{height:6px}.hub-project-due{padding:7px;gap:6px}.hub-project-due>span:first-child{font-size:14px}.hub-project-due strong{font-size:8px}.hub-project-days{font-size:7px}.hub-project-card-actions{gap:5px}.hub-project-card-actions .hub-btn{min-height:32px;padding:7px 8px;font-size:9px}}
 @media(max-width:380px){.hub-project-card-premium{grid-template-columns:96px minmax(0,1fr)}.hub-project-card-body{padding:10px 9px}.hub-project-name{font-size:14px}.hub-project-card-actions .hub-btn{font-size:8px;padding:6px}}
+
+/* Operational task cards and inline status controls */
+.hub-task-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:14px;margin-top:18px}
+.hub-task-card{padding:17px;display:grid;gap:11px;min-width:0;border:1px solid rgba(255,255,255,.78);transition:transform .18s,box-shadow .18s}
+.hub-task-card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(20,38,65,.09)}
+.hub-task-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hub-task-priority{font-size:10px;font-weight:800;padding:6px 9px;border-radius:99px;background:#edf1f6;color:#66758a}
+.hub-task-priority.priority-high{background:#fff0d9;color:#986b24}
+.hub-task-priority.priority-urgent{background:#fde9e8;color:#a33c3c}
+.hub-task-priority.priority-low{background:#edf5f1;color:#43846a}
+.hub-task-card h3{font:700 16px Manrope;color:var(--navy);margin:3px 0 0}
+.hub-task-card p{margin:0}
+.hub-task-description{font-size:12px;color:#66758a;line-height:1.5}
+.hub-task-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:10px;font-size:11px;color:#6d7b8e}
+.hub-task-overdue{color:#b34848;font-weight:800}
+.hub-task-status{width:100%;min-height:42px;font-weight:700}
+.hub-task-card .hub-actions{margin-top:0}
+@media(max-width:620px){.hub-task-grid{grid-template-columns:1fr}.hub-task-card{padding:15px}}
