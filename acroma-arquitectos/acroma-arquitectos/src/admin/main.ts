@@ -504,7 +504,15 @@ async function publishView() {
 }
 
 /* ---------- shell ---------- */
-const sections: [string, string][] = [['projects', 'Proyectos'], ['services', 'Servicios'], ['posts', 'Novedades y campañas'], ['testimonials', 'Testimonios'], ['siteimages', 'Imágenes del sitio'], ['business', 'Datos del negocio'], ['leads', 'Consultas'], ['publish', 'Publicar cambios']];
+let userPermissions = new Set<string>();
+let isRootAdmin = false;
+const sectionPermission: Record<string, string> = {
+  projects: 'projects.manage', services: 'services.manage', posts: 'posts.manage',
+  testimonials: 'testimonials.manage', siteimages: 'site_images.manage',
+  business: 'business.manage', leads: 'leads.read', publish: 'cms.publish',
+};
+const allSections: [string, string][] = [['projects', 'Proyectos'], ['services', 'Servicios'], ['posts', 'Novedades y campañas'], ['testimonials', 'Testimonios'], ['siteimages', 'Imágenes del sitio'], ['business', 'Datos del negocio'], ['leads', 'Consultas'], ['publish', 'Publicar cambios']];
+const sections = allSections.filter(([key]) => isRootAdmin || userPermissions.has(sectionPermission[key]));
 function show(key: string) {
   current = key;
   refreshBadge();
@@ -545,7 +553,7 @@ function loginView(message = '') {
     if (error) { err.textContent = 'Correo o contraseña incorrectos.'; return; }
     start();
   } },
-    h('h1', {}, 'Panel ACROMA'), h('p', {}, 'Acceso solo para administradores.'),
+    h('h1', {}, 'Panel ACROMA'), h('p', {}, 'Acceso privado para el equipo autorizado.'),
     h('div', { class: 'field' }, h('label', {}, 'Correo'), email), h('div', { class: 'field' }, h('label', {}, 'Contraseña'), pass),
     err, btn,
     h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: async () => {
@@ -570,10 +578,14 @@ function recoveryView() {
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return loginView();
-  const { data: ok, error } = await sb.rpc('is_admin');
-  if (error || ok !== true) {
+  const { data: adminCheck } = await sb.rpc('is_admin');
+  isRootAdmin = adminCheck === true;
+  const { data: permissionRows, error: permissionError } = await sb.rpc('get_my_permissions');
+  userPermissions = new Set((permissionRows ?? []).map((row: Row) => row.permission_code));
+  const { data: dashboardAllowed, error: accessError } = await sb.rpc('has_permission', { permission_code: 'dashboard.read' });
+  if (!isRootAdmin && (permissionError || accessError || dashboardAllowed !== true)) {
     await sb.auth.signOut();
-    return loginView('Esta cuenta no tiene permiso de administrador.');
+    return loginView('Esta cuenta no tiene permisos para acceder al panel.');
   }
   shell(session.user.email ?? '');
 }
