@@ -1,0 +1,1 @@
+alter table public.hub_project_tour_scenes add column if not exists gallery_urls jsonb not null default '[]'::jsonb;
