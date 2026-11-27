@@ -165,7 +165,7 @@ const path = `/proyectos/${project.slug}`;
   if (section && link && hasSupabase) {
     const client = createClient(SUPABASE_URL, SUPABASE_KEY);
     const projectTitle = section.dataset.projectTitle;
-    const normalize = (value) => String(value || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').trim().toLowerCase();
+    const normalize = (value) => String(value || '').trim().toLowerCase();
     client.from('hub_project_tours').select('slug,title,hub_projects(title)').eq('status','published').then(({data,error}) => {
       if (error) { console.warn('No se pudo consultar la experiencia 360°', error); return; }
       const match = (data || []).find((tour) => normalize(tour.hub_projects?.title) === normalize(projectTitle));
