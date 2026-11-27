@@ -61,6 +61,15 @@ const path = `/proyectos/${project.slug}`;
     </div>
   </div>
 
+  <section class="section" id="project-360" data-project-title={project.title} hidden aria-label="Recorrido virtual del proyecto">
+    <div class="container">
+      <div class="experience-card">
+        <div><p class="eyebrow">EXPERIENCIA INMERSIVA</p><h2>Recorre este proyecto en 360°.</h2><p>Explora sus ambientes, niveles y conexiones espaciales en una visita virtual interactiva.</p></div>
+        <a id="project-360-link" class="btn btn--navy" href="#">Iniciar recorrido 360° ↗</a>
+      </div>
+    </div>
+  </section>
+
   <section class="section aurora" aria-label="Detalle del proyecto">
     <div class="container detail">
       <div class="detail__text" data-reveal>
@@ -148,13 +157,29 @@ const path = `/proyectos/${project.slug}`;
     </div>
   </section>
 
-
+<script>
+  import { createClient } from '@supabase/supabase-js';
+  import { SUPABASE_URL, SUPABASE_KEY, hasSupabase } from '../../lib/supabase';
+  const section = document.querySelector('#project-360');
+  const link = document.querySelector('#project-360-link');
+  if (section && link && hasSupabase) {
+    const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const projectTitle = section.dataset.projectTitle;
+    const normalize = (value) => String(value || '').trim().toLowerCase();
+    client.from('hub_project_tours').select('slug,title,hub_projects(title)').eq('status','published').then(({data,error}) => {
+      if (error) { console.warn('No se pudo consultar la experiencia 360°', error); return; }
+      const match = (data || []).find((tour) => normalize(tour.hub_projects?.title) === normalize(projectTitle));
+      if (match) { link.href = '/recorrido/?tour=' + encodeURIComponent(match.slug); section.hidden = false; }
+    });
+  }
+</script>
 
 
   <CtaBand />
 </BaseLayout>
 
 <style>
+  .experience-card{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:clamp(24px,4vw,42px);border:1px solid rgba(198,163,91,.35);border-radius:var(--radius-lg);background:linear-gradient(120deg,#142541,#203858);color:#fff;box-shadow:var(--shadow)}.experience-card .eyebrow{color:#d9b96e}.experience-card h2{font-size:clamp(1.5rem,3vw,2.2rem);margin:8px 0}.experience-card p:not(.eyebrow){max-width:620px;color:#d6dfeb;line-height:1.65}.experience-card .btn{white-space:nowrap;background:#d2b16d;color:#142541}@media(max-width:700px){.experience-card{align-items:flex-start;flex-direction:column}.experience-card .btn{width:100%;text-align:center}}
   .cover {
     background: linear-gradient(180deg, var(--navy) 0, var(--navy) 50%, var(--paper) 50%);
     padding-bottom: 0;
